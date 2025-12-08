@@ -236,6 +236,65 @@ console.log("==========================");
             </p> -->
           </div>
 
+          <!-- Disponibilidad -->
+          <div class="bg-gray-50 border-2 border-gray-200 rounded-lg p-6">
+            <div class="flex items-start justify-between">
+              <div class="flex-1">
+                <h3 class="text-base font-semibold text-gray-900 mb-2">
+                  Estado de Disponibilidad
+                </h3>
+                <p
+                  class="text-sm text-gray-600 mb-4"
+                  id="disponibilidad-description"
+                >
+                  {
+                    cuarto.activo
+                      ? "El cuarto está visible y los usuarios pueden verlo y contactarte."
+                      : "El cuarto está oculto y no aparecerá en las búsquedas."
+                  }
+                </p>
+                <div class="flex items-center space-x-3">
+                  <label
+                    class="relative inline-flex items-center cursor-pointer"
+                  >
+                    <input
+                      type="checkbox"
+                      id="activo"
+                      name="activo"
+                      checked={cuarto.activo}
+                      class="sr-only peer"
+                    />
+                    <div
+                      class="w-14 h-7 bg-gray-300 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-green-500"
+                    >
+                    </div>
+                  </label>
+                  <span
+                    id="disponibilidad-label"
+                    class="text-sm font-medium"
+                    style={cuarto.activo
+                      ? "color: #16a34a;"
+                      : "color: #dc2626;"}
+                  >
+                    {cuarto.activo ? "✓ Disponible" : "✗ No Disponible"}
+                  </span>
+                </div>
+              </div>
+              <div class="ml-4">
+                <div
+                  class="w-12 h-12 rounded-full flex items-center justify-center"
+                  style={cuarto.activo
+                    ? "background-color: #dcfce7;"
+                    : "background-color: #fee2e2;"}
+                >
+                  <span style="font-size: 1.5rem;">
+                    {cuarto.activo ? "✓" : "✗"}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <!-- Imágenes Actuales -->
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-4">
@@ -368,6 +427,28 @@ console.log("==========================");
   </div>
 
   <script is:inline>
+    // Toggle de disponibilidad
+    const activoCheckbox = document.getElementById("activo");
+    const disponibilidadLabel = document.getElementById("disponibilidad-label");
+    const disponibilidadDescription = document.getElementById(
+      "disponibilidad-description"
+    );
+
+    activoCheckbox.addEventListener("change", function () {
+      if (this.checked) {
+        disponibilidadLabel.textContent = "✓ Disponible";
+        disponibilidadLabel.style.color = "#16a34a";
+        disponibilidadDescription.textContent =
+          "El cuarto está visible y los usuarios pueden verlo y contactarte.";
+      } else {
+        disponibilidadLabel.textContent = "✗ No Disponible";
+        disponibilidadLabel.style.color = "#dc2626";
+        disponibilidadDescription.textContent =
+          "El cuarto está oculto y no aparecerá en las búsquedas.";
+      }
+    });
+
+    // Submit del formulario
     document
       .getElementById("edit-room-form")
       .addEventListener("submit", async function (e) {
