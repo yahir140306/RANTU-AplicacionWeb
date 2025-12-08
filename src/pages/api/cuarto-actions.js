@@ -180,6 +180,8 @@ export async function POST({ params, request, cookies }) {
       ubicacion: formData.get("ubicacion")?.toString()?.trim() || null,
       servicios: formData.get("servicios")?.toString()?.trim() || null,
       contacto: formData.get("contacto")?.toString()?.trim() || null,
+      activo:
+        formData.get("activo") === "true" || formData.get("activo") === "on",
     };
 
     // Filtrar valores null/undefined para no sobrescribir con valores vacíos
