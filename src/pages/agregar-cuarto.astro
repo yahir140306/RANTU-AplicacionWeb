@@ -209,6 +209,15 @@ import Layout from "../layouts/Layout.astro";
               ></textarea>
             </div>
 
+            <!-- Mapa de Leaflet -->
+            <div class="form-group space-y-2 mt-4">
+              <label class="block text-sm font-medium text-gray-700">Ubica tu cuarto en el mapa *</label>
+              <div id="map-container" style="height: 300px; width: 100%; border-radius: 0.5rem; z-index: 10;" class="border border-gray-300 shadow-sm"></div>
+              <small class="text-gray-500 text-xs">Arrastra el marcador rojo para establecer la ubicación exacta.</small>
+              <input type="hidden" id="latitud" name="latitud" />
+              <input type="hidden" id="longitud" name="longitud" />
+            </div>
+
             <!-- Price Field -->
             <div class="space-y-2">
               <label
@@ -463,6 +472,63 @@ import Layout from "../layouts/Layout.astro";
       <!-- Toasts aparecerán aquí -->
     </div>
   </div>
+
+  <!-- Leaflet CSS y JS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script is:inline src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  
+  <script is:inline>
+    // Inicializar mapa cuando cargue la página
+    document.addEventListener("DOMContentLoaded", () => {
+      // Coordenadas por defecto (Centro de México)
+      const defaultLat = 23.634501;
+      const defaultLng = -102.552784;
+      
+      const map = L.map('map-container').setView([defaultLat, defaultLng], 5);
+      
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+      }).addTo(map);
+
+      let marker = null;
+
+      // Intentar obtener la ubicación actual del usuario
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition((position) => {
+          const userLat = position.coords.latitude;
+          const userLng = position.coords.longitude;
+          
+          map.setView([userLat, userLng], 14);
+          
+          marker = L.marker([userLat, userLng], { draggable: true }).addTo(map);
+          document.getElementById('latitud').value = userLat;
+          document.getElementById('longitud').value = userLng;
+
+          marker.on('dragend', function(event) {
+            const position = marker.getLatLng();
+            document.getElementById('latitud').value = position.lat;
+            document.getElementById('longitud').value = position.lng;
+          });
+        });
+      }
+
+      // Permitir hacer clic en el mapa para colocar el marcador
+      map.on('click', function(e) {
+        if (marker) {
+          marker.setLatLng(e.latlng);
+        } else {
+          marker = L.marker(e.latlng, { draggable: true }).addTo(map);
+          marker.on('dragend', function(event) {
+            const position = marker.getLatLng();
+            document.getElementById('latitud').value = position.lat;
+            document.getElementById('longitud').value = position.lng;
+          });
+        }
+        document.getElementById('latitud').value = e.latlng.lat;
+        document.getElementById('longitud').value = e.latlng.lng;
+      });
+    });
+  </script>
 </Layout>
 
 <script src="../logic/agregar-cuarto.js"></script>

@@ -28,20 +28,24 @@ const cuartosProcesados =
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Cuartos Disponibles</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   </head>
   <body class="bg-gray-50">
     <div class="container mx-auto px-4 py-8">
       <h1 class="text-3xl font-bold text-center mb-8">Cuartos Disponibles</h1>
 
-      <!-- Botón de Filtro Desplegable -->
+      <!-- Botones de Acción Superiores -->
       <div class="relative mb-8">
-        <button
-          id="filtro-toggle"
-          aria-expanded="false"
-          aria-controls="filtro-panel"
-          aria-label="Abrir filtros de precio"
-          class="w-full md:w-auto flex items-center justify-between bg-white hover:bg-gray-50 border border-gray-300 rounded-lg px-4 py-3 shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-        >
+        <div class="flex flex-col md:flex-row gap-4 mb-2">
+          <!-- Botón de Filtro -->
+          <button
+            id="filtro-toggle"
+            aria-expanded="false"
+            aria-controls="filtro-panel"
+            aria-label="Abrir filtros de precio"
+            class="flex-1 md:flex-none flex items-center justify-between bg-white hover:bg-gray-50 border border-gray-300 rounded-lg px-4 py-3 shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          >
           <div class="flex items-center space-x-2">
             <!-- Icono de filtro -->
             <svg
@@ -79,6 +83,18 @@ const cuartosProcesados =
               d="M19 9l-7 7-7-7"></path>
           </svg>
         </button>
+
+          <!-- Botón de Mapa -->
+          <button
+            id="map-toggle-btn"
+            class="flex-1 md:flex-none flex items-center justify-center space-x-2 bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-lg shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 font-medium"
+          >
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path>
+            </svg>
+            <span id="map-toggle-text">Ver en Mapa</span>
+          </button>
+        </div>
 
         <!-- Panel de Filtro Desplegable -->
         <div
@@ -287,6 +303,11 @@ const cuartosProcesados =
       }
 
       <!-- Grid de Cuartos -->
+      <!-- Contenedor del Mapa Global -->
+      <div id="global-map-wrapper" class="hidden mb-8 w-full h-[600px] bg-gray-100 rounded-xl overflow-hidden shadow-inner border border-gray-200">
+        <div id="global-map" class="w-full h-full z-10"></div>
+      </div>
+
       <div
         id="cuartos-container"
         class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
@@ -297,6 +318,11 @@ const cuartosProcesados =
               class="cuarto-card border rounded-lg overflow-hidden hover:shadow-lg transition-all duration-300 bg-white transform hover:-translate-y-1"
               data-precio={cuarto.precio}
               data-disponible={cuarto.activo ? "true" : "false"}
+              data-id={cuarto.id}
+              data-titulo={cuarto.titulo || "Cuarto disponible"}
+              data-lat={cuarto.latitud || ""}
+              data-lng={cuarto.longitud || ""}
+              data-img={cuarto.imagen_1 || "/Images/default.jpeg"}
             >
               <div class="relative group">
                 <img
@@ -627,6 +653,122 @@ const cuartosProcesados =
             cerrarPanel();
           }
         });
+
+        // ================= MAPA GLOBAL LOGIC =================
+        const mapToggleBtn = document.getElementById("map-toggle-btn");
+        const mapToggleText = document.getElementById("map-toggle-text");
+        const mapWrapper = document.getElementById("global-map-wrapper");
+        const cuartosContainer = document.getElementById("cuartos-container");
+        
+        let mapInitialized = false;
+        let globalLeafletMap = null;
+        let markersGroup = null;
+
+        function updateMapMarkers() {
+          if (!globalLeafletMap) return;
+          
+          if (markersGroup) {
+            markersGroup.clearLayers();
+          }
+          markersGroup = L.featureGroup().addTo(globalLeafletMap);
+
+          const cuartoCards = document.querySelectorAll(".cuarto-card");
+          let bounds = [];
+
+          cuartoCards.forEach(card => {
+            // Only add markers for visible cards (filtered)
+            if (card.style.display !== "none") {
+              const lat = parseFloat(card.getAttribute("data-lat"));
+              const lng = parseFloat(card.getAttribute("data-lng"));
+              
+              if (!isNaN(lat) && !isNaN(lng)) {
+                const titulo = card.getAttribute("data-titulo");
+                const precio = card.getAttribute("data-precio");
+                const id = card.getAttribute("data-id");
+                const img = card.getAttribute("data-img");
+                
+                const popupContent = `
+                  <div class="text-center w-48">
+                    <img src="${img}" class="w-full h-24 object-cover rounded-md mb-2">
+                    <h4 class="font-bold text-sm mb-1 line-clamp-1">${titulo}</h4>
+                    <p class="text-indigo-600 font-bold mb-2">$${precio}/mes</p>
+                    <a href="/cuarto/${id}" class="inline-block bg-indigo-600 text-white text-xs px-3 py-1.5 rounded hover:bg-indigo-700 transition-colors">Ver Detalles</a>
+                  </div>
+                `;
+                
+                const marker = L.marker([lat, lng]).bindPopup(popupContent);
+                markersGroup.addLayer(marker);
+                bounds.push([lat, lng]);
+              }
+            }
+          });
+
+          if (bounds.length > 0) {
+            globalLeafletMap.fitBounds(bounds, { padding: [50, 50] });
+          } else {
+            // Default center if no valid coordinates
+            globalLeafletMap.setView([23.6345, -102.5528], 5);
+          }
+        }
+
+        mapToggleBtn.addEventListener("click", () => {
+          const isMapHidden = mapWrapper.classList.contains("hidden");
+          
+          if (isMapHidden) {
+            // Show map
+            mapWrapper.classList.remove("hidden");
+            cuartosContainer.classList.add("hidden");
+            mapToggleText.textContent = "Ver en Lista";
+            mapToggleBtn.innerHTML = `
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path>
+              </svg>
+              <span id="map-toggle-text">Ver en Lista</span>
+            `;
+            
+            if (!mapInitialized) {
+              globalLeafletMap = L.map('global-map');
+              L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; OpenStreetMap contributors'
+              }).addTo(globalLeafletMap);
+              mapInitialized = true;
+            }
+            
+            // Need a slight delay for Leaflet to detect container size properly after un-hiding
+            setTimeout(() => {
+              globalLeafletMap.invalidateSize();
+              updateMapMarkers();
+            }, 100);
+            
+          } else {
+            // Show list
+            mapWrapper.classList.add("hidden");
+            cuartosContainer.classList.remove("hidden");
+            mapToggleBtn.innerHTML = `
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path>
+              </svg>
+              <span id="map-toggle-text">Ver en Mapa</span>
+            `;
+          }
+        });
+
+        // Also update markers when filtering if map is visible
+        const originalFiltrarCuartos = filtrarCuartos;
+        filtrarCuartos = function() {
+          originalFiltrarCuartos();
+          if (!mapWrapper.classList.contains("hidden")) {
+            updateMapMarkers();
+          }
+        };
+        const originalLimpiarFiltros = limpiarFiltros;
+        limpiarFiltros = function() {
+          originalLimpiarFiltros();
+          if (!mapWrapper.classList.contains("hidden")) {
+            updateMapMarkers();
+          }
+        };
+
       });
     </script>
   </body>

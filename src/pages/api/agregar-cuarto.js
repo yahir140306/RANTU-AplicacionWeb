@@ -40,6 +40,8 @@ export async function POST({ request, cookies }) {
     const celular = formData.get("celular")?.toString().trim();
     const caracteristicas = formData.get("caracteristicas")?.toString().trim();
     const ubicacion = formData.get("ubicacion")?.toString().trim();
+    const latitud = formData.get("latitud") ? parseFloat(formData.get("latitud")) : null;
+    const longitud = formData.get("longitud") ? parseFloat(formData.get("longitud")) : null;
 
     // Imágenes
     const imagen_1 = formData.get("imagen_1");
@@ -250,6 +252,8 @@ export async function POST({ request, cookies }) {
           celular, // ✅ Nuevo campo
           caracteristicas, // ✅ Nuevo campo
           ubicacion, // ✅ Nuevo campo
+          latitud,
+          longitud,
           imagen_principal: imagen_1_url,
           imagen_1: imagen_1_url,
           imagen_2: imagen_2_url,
