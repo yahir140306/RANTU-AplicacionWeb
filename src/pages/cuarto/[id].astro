@@ -707,6 +707,27 @@ function generarEnlaceWhatsApp(celular, titulo, precio) {
             downloadBtn.disabled = true;
 
             const card = document.getElementById("download-card");
+            
+            // Bulletproof fix para CORS: Convertir imagen a Base64 antes de capturar
+            const imgEl = card.querySelector('img');
+            const originalSrc = imgEl.src;
+            if (originalSrc && !originalSrc.startsWith('data:')) {
+              try {
+                // Removemos el cache buster si existe para el fetch
+                const fetchUrl = originalSrc.split('v=html2canvas')[0].replace(/[?&]$/, '');
+                const response = await fetch(fetchUrl);
+                const blob = await response.blob();
+                const base64 = await new Promise((resolve) => {
+                  const reader = new FileReader();
+                  reader.onloadend = () => resolve(reader.result);
+                  reader.readAsDataURL(blob);
+                });
+                imgEl.src = base64;
+                imgEl.removeAttribute('crossorigin');
+              } catch (err) {
+                console.error("Error pre-cargando imagen a base64", err);
+              }
+            }
 
             const canvas = await html2canvas(card, {
               width: 800,
@@ -723,6 +744,10 @@ function generarEnlaceWhatsApp(celular, titulo, precio) {
                 clonedCard.style.left = "0";
               },
             });
+            
+            // Restaurar imagen original
+            imgEl.src = originalSrc;
+            imgEl.setAttribute('crossorigin', 'anonymous');
 
             const link = document.createElement("a");
             link.download = `cuarto-${encodeURIComponent(cuarto.titulo)}-${Date.now()}.png`;
