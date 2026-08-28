@@ -1,0 +1,71 @@
+---
+export interface Props {
+  cuarto: {
+    id: number;
+    titulo: string;
+    precio: number;
+    imagen_1?: string;
+    descripcion: string;
+    created_at: string;
+  };
+}
+
+const { cuarto } = Astro.props;
+---
+
+<div class="bg-white rounded-lg shadow-sm border overflow-hidden">
+  <div class="p-6">
+    <div class="flex items-start justify-between">
+      <div class="flex">
+        <div class="flex-shrink-0">
+          <img
+            src={cuarto.imagen_1 || "/Images/default.jpeg"}
+            alt={cuarto.titulo}
+            class="h-20 w-20 rounded-lg object-cover"
+            loading="lazy"
+            onerror="this.src='/Images/default.jpeg'; this.onerror=null;"
+          />
+        </div>
+        <div class="ml-4 flex-1">
+          <h3 class="text-lg font-medium text-gray-900">
+            {cuarto.titulo}
+          </h3>
+          <p class="text-sm text-gray-500 mt-1 line-clamp-2">
+            {cuarto.descripcion}
+          </p>
+          <div class="mt-2 flex items-center text-sm text-gray-500">
+            <span class="text-lg font-bold text-blue-600">
+              ${cuarto.precio.toLocaleString()}
+            </span>
+            <span class="ml-1">por mes</span>
+            <span class="mx-2">•</span>
+            <span>
+              Creado el{" "}
+              {new Date(cuarto.created_at).toLocaleDateString("es-ES")}
+            </span>
+          </div>
+        </div>
+      </div>
+      <div class="flex items-center space-x-2">
+        <a
+          href={`/cuarto/${cuarto.id}`}
+          class="text-blue-600 hover:text-blue-800 text-sm font-medium"
+        >
+          Ver
+        </a>
+        <a
+          href={`/editar-cuarto/${cuarto.id}`}
+          class="bg-yellow-100 hover:bg-yellow-200 text-yellow-800 px-3 py-1 rounded-md text-sm font-medium transition-colors"
+        >
+          Editar
+        </a>
+        <button
+          onclick={`eliminarCuarto('${cuarto.id}', '${cuarto.titulo}')`}
+          class="bg-red-100 hover:bg-red-200 text-red-800 px-3 py-1 rounded-md text-sm font-medium transition-colors"
+        >
+          Eliminar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

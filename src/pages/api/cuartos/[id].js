@@ -1,3 +1,4 @@
+import { CONSTANTS } from "../../../utils/constants.js";
 import { createClient } from "../../../lib/supabase";
 
 export async function DELETE({ params, request, cookies }) {
@@ -218,7 +219,7 @@ export async function POST({ params, request, cookies }) {
 
       // Subir a Supabase Storage
       const { data: uploadData1, error: uploadError1 } = await supabase.storage
-        .from("cuartos-images")
+        .from(CONSTANTS.SUPABASE.BUCKETS.CUARTOS_IMAGES)
         .upload(fileName, imagen1File, {
           contentType: imagen1File.type,
           upsert: true,
@@ -229,7 +230,7 @@ export async function POST({ params, request, cookies }) {
       } else {
         // Obtener URL pública
         const { data: publicUrl1 } = supabase.storage
-          .from("cuartos-images")
+          .from(CONSTANTS.SUPABASE.BUCKETS.CUARTOS_IMAGES)
           .getPublicUrl(fileName);
 
         updateData.imagen_1 = publicUrl1.publicUrl;
@@ -247,7 +248,7 @@ export async function POST({ params, request, cookies }) {
       const fileName = `cuarto_${cuartoId}_2_${timestamp}.${extension}`;
 
       const { data: uploadData2, error: uploadError2 } = await supabase.storage
-        .from("cuartos-images")
+        .from(CONSTANTS.SUPABASE.BUCKETS.CUARTOS_IMAGES)
         .upload(fileName, imagen2File, {
           contentType: imagen2File.type,
           upsert: true,
@@ -257,7 +258,7 @@ export async function POST({ params, request, cookies }) {
         console.error("❌ Error subiendo imagen_2:", uploadError2);
       } else {
         const { data: publicUrl2 } = supabase.storage
-          .from("cuartos-images")
+          .from(CONSTANTS.SUPABASE.BUCKETS.CUARTOS_IMAGES)
           .getPublicUrl(fileName);
 
         updateData.imagen_2 = publicUrl2.publicUrl;
@@ -275,7 +276,7 @@ export async function POST({ params, request, cookies }) {
       const fileName = `cuarto_${cuartoId}_3_${timestamp}.${extension}`;
 
       const { data: uploadData3, error: uploadError3 } = await supabase.storage
-        .from("cuartos-images")
+        .from(CONSTANTS.SUPABASE.BUCKETS.CUARTOS_IMAGES)
         .upload(fileName, imagen3File, {
           contentType: imagen3File.type,
           upsert: true,
@@ -285,7 +286,7 @@ export async function POST({ params, request, cookies }) {
         console.error("❌ Error subiendo imagen_3:", uploadError3);
       } else {
         const { data: publicUrl3 } = supabase.storage
-          .from("cuartos-images")
+          .from(CONSTANTS.SUPABASE.BUCKETS.CUARTOS_IMAGES)
           .getPublicUrl(fileName);
 
         updateData.imagen_3 = publicUrl3.publicUrl;

@@ -1,3 +1,4 @@
+import { CONSTANTS } from "../../utils/constants.js";
 import { createClient } from "../../lib/supabase";
 
 export async function POST({ request, cookies }) {
@@ -135,7 +136,7 @@ export async function POST({ request, cookies }) {
     }
 
     // Validar tamaño de imágenes (5MB max)
-    const maxSize = 5 * 1024 * 1024; // 5MB
+    const maxSize = CONSTANTS.SUPABASE.LIMITS.MAX_IMAGE_SIZE_BYTES; // 5MB
     const images = [imagen_1, imagen_2, imagen_3].filter(
       (img) => img && img.size > 0
     );
@@ -165,7 +166,7 @@ export async function POST({ request, cookies }) {
       const extension = imagen.name.split(".").pop();
       const fileName = `${nombreBase}_${timestamp}_${randomStr}.${extension}`;
 
-      const BUCKET_NAME = "cuartos-images";
+      const BUCKET_NAME = CONSTANTS.SUPABASE.BUCKETS.CUARTOS_IMAGES;
 
       try {
         const { data: uploadData, error: uploadError } = await supabase.storage
