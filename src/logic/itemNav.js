@@ -20,7 +20,7 @@ export const items = [
     label: "Perfil",
     href: "/protected",
     isButton: false,
-    requiresAuth: false,
+    requiresAuth: true,
   },
   {
     label: "Entrar",
