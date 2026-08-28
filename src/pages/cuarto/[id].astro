@@ -721,6 +721,18 @@ function generarEnlaceWhatsApp(celular, titulo, precio) {
             downloadBtn.disabled = true;
 
             const card = document.getElementById("download-card");
+            
+            // Fix: Mover la tarjeta al viewport pero oculta para evitar que html2canvas falle por estar off-screen
+            const originalCssText = card.style.cssText;
+            const originalClassName = card.className;
+            card.className = "download-card w-full text-white p-8 flex flex-col justify-between";
+            card.style.position = "absolute";
+            card.style.top = "0px";
+            card.style.left = "0px";
+            card.style.width = "800px";
+            card.style.height = "600px";
+            card.style.zIndex = "-1000";
+            card.style.opacity = "0";
 
             const canvas = await html2canvas(card, {
               width: 800,
@@ -729,14 +741,12 @@ function generarEnlaceWhatsApp(celular, titulo, precio) {
               useCORS: true,
               allowTaint: false,
               backgroundColor: null,
-              logging: false,
-              onclone: function (clonedDoc) {
-                const clonedCard = clonedDoc.getElementById("download-card");
-                clonedCard.style.position = "relative";
-                clonedCard.style.top = "0";
-                clonedCard.style.left = "0";
-              },
+              logging: true
             });
+            
+            // Restaurar estado original
+            card.className = originalClassName;
+            card.style.cssText = originalCssText;
 
             const link = document.createElement("a");
             link.download = `cuarto-${encodeURIComponent(cuarto.titulo)}-${Date.now()}.png`;
