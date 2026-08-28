@@ -86,9 +86,7 @@ function generarEnlaceWhatsApp(celular, titulo, precio) {
       <title>{cuarto.titulo}</title>
       <!-- ✅ CORREGIDO: cuarto.titulo en lugar de cuarto.name -->
       <script src="https://cdn.tailwindcss.com"></script>
-      <script
-        src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"
-      ></script>
+      <script src="https://cdn.jsdelivr.net/npm/html-to-image@1.11.11/dist/html-to-image.js"></script>
       <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
       <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
       <style>
@@ -734,14 +732,14 @@ function generarEnlaceWhatsApp(celular, titulo, precio) {
             card.style.zIndex = "-1000";
             card.style.opacity = "0";
 
-            const canvas = await html2canvas(card, {
+            const dataUrl = await htmlToImage.toPng(card, {
               width: 800,
               height: 600,
-              scale: 2,
-              useCORS: true,
-              allowTaint: false,
-              backgroundColor: null,
-              logging: true
+              pixelRatio: 2,
+              style: {
+                transform: 'none',
+                opacity: '1' // Sobrescribir el opacity: 0 que le pusimos temporalmente al DOM real
+              }
             });
             
             // Restaurar estado original
@@ -750,7 +748,7 @@ function generarEnlaceWhatsApp(celular, titulo, precio) {
 
             const link = document.createElement("a");
             link.download = `cuarto-${encodeURIComponent(cuarto.titulo)}-${Date.now()}.png`;
-            link.href = canvas.toDataURL("image/png", 1.0);
+            link.href = dataUrl;
 
             document.body.appendChild(link);
             link.click();
@@ -759,7 +757,7 @@ function generarEnlaceWhatsApp(celular, titulo, precio) {
             alert("¡Tarjeta descargada exitosamente!");
           } catch (error) {
             console.error("Error generando tarjeta:", error);
-            alert("Error al generar la tarjeta. Inténtalo de nuevo.");
+            alert("Error al generar la tarjeta: " + (error.message || error));
           } finally {
             downloadBtn.innerHTML = originalText;
             downloadBtn.disabled = false;
