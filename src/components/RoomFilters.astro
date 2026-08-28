@@ -1,0 +1,215 @@
+---
+---
+<!-- Botones de Acción Superiores -->
+<div class="relative mb-8">
+  <div class="flex flex-col md:flex-row gap-4 mb-2">
+    <!-- Botón de Filtro -->
+    <button
+      id="filtro-toggle"
+      aria-expanded="false"
+      aria-controls="filtro-panel"
+      aria-label="Abrir filtros de precio"
+      class="flex-1 md:flex-none flex items-center justify-between bg-white hover:bg-gray-50 border border-gray-300 rounded-lg px-4 py-3 shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+    >
+    <div class="flex items-center space-x-2">
+      <!-- Icono de filtro -->
+      <svg
+        class="w-5 h-5 text-gray-600"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+        aria-hidden="true"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 2v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"
+        ></path>
+      </svg>
+      <span class="font-medium text-gray-700">Filtrar por Precio</span>
+      <span id="filtro-status" class="text-sm text-gray-500 hidden">
+        (Activo)
+      </span>
+    </div>
+    <!-- Flecha desplegable -->
+    <svg
+      id="filtro-arrow"
+      class="w-5 h-5 text-gray-400 transition-transform duration-200"
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+      aria-hidden="true"
+    >
+      <path
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+        d="M19 9l-7 7-7-7"></path>
+    </svg>
+  </button>
+
+    <!-- Botón de Mapa -->
+    <button
+      id="map-toggle-btn"
+      class="flex-1 md:flex-none flex items-center justify-center space-x-2 bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-lg shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 font-medium"
+    >
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path>
+      </svg>
+      <span id="map-toggle-text">Ver en Mapa</span>
+    </button>
+  </div>
+
+  <!-- Panel de Filtro Desplegable -->
+  <div
+    id="filtro-panel"
+    role="region"
+    aria-label="Filtros de búsqueda"
+    class="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-10 opacity-0 invisible transform scale-95 transition-all duration-200 ease-out"
+  >
+    <div class="p-6">
+      <h3 class="text-lg font-semibold mb-4 text-gray-800">
+        Rango de Precios
+      </h3>
+
+      <div class="space-y-4">
+        <!-- Campo Precio Mínimo -->
+        <div class="space-y-2">
+          <label
+            for="precio-min"
+            class="text-sm font-medium text-gray-700 block"
+          >
+            Precio Mínimo
+          </label>
+          <div class="relative">
+            <span
+              class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 text-sm"
+            >
+              $
+            </span>
+            <input
+              type="number"
+              id="precio-min"
+              name="precio-min"
+              min="0"
+              step="1000"
+              placeholder="0"
+              aria-describedby="precio-min-help"
+              class="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200"
+            />
+            <div id="precio-min-help" class="sr-only">
+              Ingresa el precio mínimo en pesos mexicanos
+            </div>
+          </div>
+        </div>
+
+        <!-- Campo Precio Máximo -->
+        <div class="space-y-2">
+          <label
+            for="precio-max"
+            class="text-sm font-medium text-gray-700 block"
+          >
+            Precio Máximo
+          </label>
+          <div class="relative">
+            <span
+              class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 text-sm"
+              aria-hidden="true"
+            >
+              $
+            </span>
+            <input
+              type="number"
+              id="precio-max"
+              name="precio-max"
+              min="0"
+              step="1000"
+              placeholder="Sin límite"
+              aria-describedby="precio-max-help"
+              class="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200"
+            />
+            <div id="precio-max-help" class="sr-only">
+              Ingresa el precio máximo en pesos mexicanos, o deja vacío
+              para sin límite
+            </div>
+          </div>
+        </div>
+
+        <!-- Filtro de Disponibilidad -->
+        <div class="space-y-2 pt-2 border-t border-gray-100">
+          <label class="text-sm font-medium text-gray-700 block mb-3">
+            Disponibilidad
+          </label>
+          <label class="flex items-center space-x-3 cursor-pointer group">
+            <input
+              type="checkbox"
+              id="solo-disponibles"
+              name="solo-disponibles"
+              checked
+              class="w-5 h-5 text-green-600 border-gray-300 rounded focus:ring-2 focus:ring-green-500 transition-colors cursor-pointer"
+            />
+            <span
+              class="text-gray-700 group-hover:text-gray-900 transition-colors"
+            >
+              Solo mostrar cuartos disponibles
+            </span>
+          </label>
+        </div>
+
+        <!-- Botones de Acción -->
+        <div
+          class="flex flex-col sm:flex-row gap-3 pt-4 border-t border-gray-100"
+        >
+          <button
+            id="filtrar-btn"
+            type="button"
+            aria-label="Aplicar filtros de precio seleccionados"
+            class="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-lg transition-colors duration-200 font-medium shadow-sm hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+          >
+            <div class="flex items-center justify-center space-x-2">
+              <svg
+                class="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+              </svg>
+              <span>Aplicar Filtro</span>
+            </div>
+          </button>
+          <button
+            id="limpiar-btn"
+            type="button"
+            aria-label="Limpiar todos los filtros aplicados"
+            class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-3 rounded-lg transition-colors duration-200 font-medium border border-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
+          >
+            <div class="flex items-center justify-center space-x-2">
+              <svg
+                class="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                ></path>
+              </svg>
+              <span>Limpiar</span>
+            </div>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
