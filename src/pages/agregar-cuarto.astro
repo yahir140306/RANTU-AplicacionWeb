@@ -211,7 +211,10 @@ import Layout from "../layouts/Layout.astro";
 
             <!-- Mapa de Leaflet -->
             <div class="form-group space-y-2 mt-4">
-              <label class="block text-sm font-medium text-gray-700">Ubica tu cuarto en el mapa *</label>
+              <div class="flex items-center justify-between">
+                <label class="block text-sm font-medium text-gray-700">Ubica tu cuarto en el mapa *</label>
+                <button type="button" id="btn-mi-ubicacion" class="text-xs bg-indigo-100 text-indigo-700 hover:bg-indigo-200 px-2 py-1 rounded font-medium transition-colors">Usar mi ubicación</button>
+              </div>
               <div id="map-container" style="height: 300px; width: 100%; border-radius: 0.5rem; z-index: 10;" class="border border-gray-300 shadow-sm"></div>
               <small class="text-gray-500 text-xs">Arrastra el marcador rojo para establecer la ubicación exacta.</small>
               <input type="hidden" id="latitud" name="latitud" />
@@ -526,6 +529,31 @@ import Layout from "../layouts/Layout.astro";
         }
         document.getElementById('latitud').value = e.latlng.lat;
         document.getElementById('longitud').value = e.latlng.lng;
+      });
+
+      // Botón "Usar mi ubicación"
+      document.getElementById("btn-mi-ubicacion").addEventListener("click", () => {
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition((position) => {
+            const userLat = position.coords.latitude;
+            const userLng = position.coords.longitude;
+            map.setView([userLat, userLng], 14);
+            if (marker) {
+              marker.setLatLng([userLat, userLng]);
+            } else {
+              marker = L.marker([userLat, userLng], { draggable: true }).addTo(map);
+              marker.on('dragend', function(event) {
+                const pos = marker.getLatLng();
+                document.getElementById('latitud').value = pos.lat;
+                document.getElementById('longitud').value = pos.lng;
+              });
+            }
+            document.getElementById('latitud').value = userLat;
+            document.getElementById('longitud').value = userLng;
+          }, (error) => {
+            alert("No se pudo obtener la ubicación. Por favor revisa los permisos del navegador.");
+          });
+        }
       });
     });
   </script>

@@ -220,12 +220,23 @@ export async function POST({ params, request, cookies }) {
       );
     }
 
-    // Verificar que el cuarto existe
+    // Verificar que el cuarto existe y no sea del propio usuario
     const { data: cuarto, error: cuartoError } = await supabase
       .from("cuartos")
-      .select("id")
+      .select("id, user_id")
       .eq("id", cuartoId)
       .single();
+
+    if (cuarto && cuarto.user_id === user.id) {
+      console.warn("⚠️ Intento de auto-comentario bloqueado para:", user.id);
+      return new Response(
+        JSON.stringify({
+          error: "No puedes calificar tu propio cuarto",
+          success: false,
+        }),
+        { status: 403, headers: { "Content-Type": "application/json" } }
+      );
+    }
 
     if (cuartoError || !cuarto) {
       console.error("❌ Cuarto no encontrado:", cuartoError);
