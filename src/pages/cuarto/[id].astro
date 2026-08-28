@@ -434,7 +434,7 @@ function generarEnlaceWhatsApp(celular, titulo, precio) {
           <div class="flex-1 flex items-center justify-between py-8">
             <div class="w-80 h-60 rounded-xl overflow-hidden shadow-2xl">
               <img
-                src={imagenes[0]}
+                src={imagenes[0] + (imagenes[0].includes('?') ? '&' : '?') + 'v=html2canvas'}
                 alt={cuarto.titulo}
                 class="w-full h-full object-cover"
                 crossorigin="anonymous"
@@ -713,7 +713,7 @@ function generarEnlaceWhatsApp(celular, titulo, precio) {
               height: 600,
               scale: 2,
               useCORS: true,
-              allowTaint: true,
+              allowTaint: false,
               backgroundColor: null,
               logging: false,
               onclone: function (clonedDoc) {
