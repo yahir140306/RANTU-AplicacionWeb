@@ -72,6 +72,8 @@ function generarEnlaceWhatsApp(celular, titulo, precio) {
       <script
         src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"
       ></script>
+      <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+      <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
       <style>
         .no-scrollbar::-webkit-scrollbar {
           display: none;
@@ -157,6 +159,14 @@ function generarEnlaceWhatsApp(celular, titulo, precio) {
           ${cuarto.precio} / mes
         </p>
 
+        <!-- Modal para zoom de imagen -->
+        <div id="imageModal" class="fixed inset-0 z-[100] hidden bg-black bg-opacity-90 flex items-center justify-center p-4">
+          <button onclick="closeImageModal()" class="absolute top-4 right-4 text-white hover:text-gray-300 focus:outline-none">
+            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+          </button>
+          <img id="modalImage" src="" alt="Imagen ampliada" class="max-w-full max-h-[90vh] object-contain rounded-lg" />
+        </div>
+
         <!-- Carrusel -->
         <div
           id="carousel"
@@ -167,8 +177,9 @@ function generarEnlaceWhatsApp(celular, titulo, precio) {
               <img
                 src={url}
                 alt={`Imagen ${i + 1}`}
-                class="snap-center w-full h-[500px] object-cover flex-shrink-0 rounded-lg shadow"
+                class="snap-center w-full h-[500px] object-cover flex-shrink-0 rounded-lg shadow cursor-zoom-in transition-transform hover:opacity-95"
                 style="min-width: 100%"
+                onclick={`openImageModal('${url}')`}
               />
             ))
           }
@@ -188,9 +199,18 @@ function generarEnlaceWhatsApp(celular, titulo, precio) {
               {cuarto.caracteristicas || "No especificadas"}
             </p>
           </div>
-          <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
+          <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow flex flex-col h-full">
             <h3 class="font-semibold mb-2">Ubicación</h3>
-            <p class="text-gray-700 dark:text-gray-300">{cuarto.ubicacion || "No especificada"}</p>
+            <p class="text-gray-700 dark:text-gray-300 mb-4">{cuarto.ubicacion || "No especificada"}</p>
+            {cuarto.latitud && cuarto.longitud ? (
+              <div class="flex-grow min-h-[250px] w-full rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700 relative z-0">
+                <div id="room-map" class="w-full h-full absolute inset-0" data-lat={cuarto.latitud} data-lng={cuarto.longitud} data-title={cuarto.titulo}></div>
+              </div>
+            ) : (
+              <div class="flex-grow bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center min-h-[200px]">
+                <p class="text-gray-500 dark:text-gray-400">Ubicación exacta no disponible</p>
+              </div>
+            )}
           </div>
         </section>
 
@@ -717,6 +737,54 @@ function generarEnlaceWhatsApp(celular, titulo, precio) {
             .getElementById("download-btn")
             .addEventListener("click", descargarTarjeta);
           cargarComentarios();
+        });
+      </script>
+
+      <script is:inline>
+        // === LOGICA DEL MODAL DE IMAGEN ===
+        function openImageModal(src) {
+          const modal = document.getElementById("imageModal");
+          const modalImg = document.getElementById("modalImage");
+          modalImg.src = src;
+          modal.classList.remove("hidden");
+          document.body.style.overflow = "hidden"; // Prevent scrolling
+        }
+
+        function closeImageModal() {
+          const modal = document.getElementById("imageModal");
+          modal.classList.add("hidden");
+          document.body.style.overflow = "auto";
+        }
+
+        // Close modal on escape key
+        document.addEventListener("keydown", function(e) {
+          if (e.key === "Escape") closeImageModal();
+        });
+
+        // Close modal on click outside image
+        document.getElementById("imageModal")?.addEventListener("click", function(e) {
+          if (e.target === this) closeImageModal();
+        });
+
+        // === LOGICA DEL MAPA ===
+        document.addEventListener("DOMContentLoaded", function() {
+          const mapContainer = document.getElementById("room-map");
+          if (mapContainer && typeof L !== "undefined") {
+            const lat = parseFloat(mapContainer.dataset.lat);
+            const lng = parseFloat(mapContainer.dataset.lng);
+            const title = mapContainer.dataset.title || "Cuarto";
+            
+            if (!isNaN(lat) && !isNaN(lng)) {
+              const map = L.map('room-map').setView([lat, lng], 15);
+              L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+              }).addTo(map);
+              
+              L.marker([lat, lng]).addTo(map)
+                .bindPopup(`<b>${title}</b>`)
+                .openPopup();
+            }
+          }
         });
       </script>
     </body>
