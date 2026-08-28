@@ -9,7 +9,7 @@
       aria-expanded="false"
       aria-controls="filtro-panel"
       aria-label="Abrir filtros de precio"
-      class="flex-1 md:flex-none flex items-center justify-between bg-white hover:bg-gray-50 border border-gray-300 rounded-lg px-4 py-3 shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+      class="flex-1 md:flex-none flex items-center justify-between bg-white dark:bg-gray-800 hover:bg-gray-50 border border-gray-300 rounded-lg px-4 py-3 shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
     >
     <div class="flex items-center space-x-2">
       <!-- Icono de filtro -->
@@ -27,7 +27,7 @@
           d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 2v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"
         ></path>
       </svg>
-      <span class="font-medium text-gray-700">Filtrar por Precio</span>
+      <span class="font-medium text-gray-700 dark:text-gray-300">Filtrar por Precio</span>
       <span id="filtro-status" class="text-sm text-gray-500 hidden">
         (Activo)
       </span>
@@ -66,10 +66,10 @@
     id="filtro-panel"
     role="region"
     aria-label="Filtros de búsqueda"
-    class="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-10 opacity-0 invisible transform scale-95 transition-all duration-200 ease-out"
+    class="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-gray-800 border border-gray-200 rounded-lg shadow-lg z-10 opacity-0 invisible transform scale-95 transition-all duration-200 ease-out"
   >
     <div class="p-6">
-      <h3 class="text-lg font-semibold mb-4 text-gray-800">
+      <h3 class="text-lg font-semibold mb-4 text-gray-800 dark:text-gray-200">
         Rango de Precios
       </h3>
 
@@ -78,7 +78,7 @@
         <div class="space-y-2">
           <label
             for="precio-min"
-            class="text-sm font-medium text-gray-700 block"
+            class="text-sm font-medium text-gray-700 dark:text-gray-300 block"
           >
             Precio Mínimo
           </label>
@@ -108,7 +108,7 @@
         <div class="space-y-2">
           <label
             for="precio-max"
-            class="text-sm font-medium text-gray-700 block"
+            class="text-sm font-medium text-gray-700 dark:text-gray-300 block"
           >
             Precio Máximo
           </label>
@@ -138,7 +138,7 @@
 
         <!-- Filtro de Disponibilidad -->
         <div class="space-y-2 pt-2 border-t border-gray-100">
-          <label class="text-sm font-medium text-gray-700 block mb-3">
+          <label class="text-sm font-medium text-gray-700 dark:text-gray-300 block mb-3">
             Disponibilidad
           </label>
           <label class="flex items-center space-x-3 cursor-pointer group">
@@ -150,7 +150,7 @@
               class="w-5 h-5 text-green-600 border-gray-300 rounded focus:ring-2 focus:ring-green-500 transition-colors cursor-pointer"
             />
             <span
-              class="text-gray-700 group-hover:text-gray-900 transition-colors"
+              class="text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:text-gray-100 transition-colors"
             >
               Solo mostrar cuartos disponibles
             </span>
@@ -188,7 +188,7 @@
             id="limpiar-btn"
             type="button"
             aria-label="Limpiar todos los filtros aplicados"
-            class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-3 rounded-lg transition-colors duration-200 font-medium border border-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
+            class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 dark:text-gray-300 px-4 py-3 rounded-lg transition-colors duration-200 font-medium border border-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
           >
             <div class="flex items-center justify-center space-x-2">
               <svg

@@ -17,7 +17,7 @@ const { cuarto } = Astro.props;
 ---
 
 <div
-  class="cuarto-card border rounded-lg overflow-hidden hover:shadow-lg transition-all duration-300 bg-white transform hover:-translate-y-1"
+  class="cuarto-card border rounded-lg overflow-hidden hover:shadow-lg transition-all duration-300 bg-white dark:bg-gray-800 transform hover:-translate-y-1"
   data-precio={cuarto.precio}
   data-disponible={cuarto.activo ? "true" : "false"}
   data-id={cuarto.id}
@@ -48,7 +48,7 @@ const { cuarto } = Astro.props;
   </div>
 
   <div class="p-5">
-    <h2 class="text-xl font-semibold mb-2 text-gray-800 line-clamp-1">
+    <h2 class="text-xl font-semibold mb-2 text-gray-800 dark:text-gray-200 line-clamp-1">
       {cuarto.titulo || cuarto.name || "Cuarto disponible"}
     </h2>
 

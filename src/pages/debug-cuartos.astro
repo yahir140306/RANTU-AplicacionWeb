@@ -53,10 +53,10 @@ console.log("====================");
 <Layout>
   <div class="min-h-screen bg-gray-50 py-8">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <h1 class="text-3xl font-bold text-gray-900 mb-8">Debug de Cuartos</h1>
+      <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-8">Debug de Cuartos</h1>
 
       <!-- Información del Usuario -->
-      <div class="bg-white rounded-lg shadow p-6 mb-6">
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6 mb-6">
         <h2 class="text-xl font-bold mb-4">Información del Usuario</h2>
         {
           user ? (
@@ -80,7 +80,7 @@ console.log("====================");
       </div>
 
       <!-- Estadísticas -->
-      <div class="bg-white rounded-lg shadow p-6 mb-6">
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6 mb-6">
         <h2 class="text-xl font-bold mb-4">Estadísticas</h2>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
@@ -109,7 +109,7 @@ console.log("====================");
       </div>
 
       <!-- Todos los Cuartos -->
-      <div class="bg-white rounded-lg shadow p-6 mb-6">
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6 mb-6">
         <h2 class="text-xl font-bold mb-4">Todos los Cuartos en la DB</h2>
         {
           todosLosCuartos && todosLosCuartos.length > 0 ? (
@@ -134,15 +134,15 @@ console.log("====================");
                     </th>
                   </tr>
                 </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
+                <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200">
                   {todosLosCuartos.map((cuarto) => (
                     <tr
                       class={cuarto.user_id === user?.id ? "bg-green-50" : ""}
                     >
-                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
                         {cuarto.id}
                       </td>
-                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
                         {cuarto.name}
                       </td>
                       <td class="px-6 py-4 whitespace-nowrap text-sm">
@@ -159,7 +159,7 @@ console.log("====================");
                           </span>
                         )}
                       </td>
-                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
                         ${cuarto.precio?.toLocaleString()}
                       </td>
                       <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
@@ -179,7 +179,7 @@ console.log("====================");
       <!-- Mis Cuartos -->
       {
         user && (
-          <div class="bg-white rounded-lg shadow p-6">
+          <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
             <h2 class="text-xl font-bold mb-4">Mis Cuartos (Filtrados)</h2>
             {misCuartos && misCuartos.length > 0 ? (
               <div class="space-y-4">

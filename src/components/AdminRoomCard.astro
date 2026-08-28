@@ -13,7 +13,7 @@ export interface Props {
 const { cuarto } = Astro.props;
 ---
 
-<div class="bg-white rounded-lg shadow-sm border overflow-hidden">
+<div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border overflow-hidden">
   <div class="p-6">
     <div class="flex items-start justify-between">
       <div class="flex">
@@ -27,7 +27,7 @@ const { cuarto } = Astro.props;
           />
         </div>
         <div class="ml-4 flex-1">
-          <h3 class="text-lg font-medium text-gray-900">
+          <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100">
             {cuarto.titulo}
           </h3>
           <p class="text-sm text-gray-500 mt-1 line-clamp-2">

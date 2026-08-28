@@ -52,7 +52,7 @@ console.log("========================");
       <div class="mb-8">
         <div class="flex items-center justify-between">
           <div>
-            <h1 class="text-3xl font-bold text-gray-900">Mis Cuartos</h1>
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100">Mis Cuartos</h1>
             <p class="mt-2 text-gray-600">
               Gestiona los cuartos que has publicado
             </p>
@@ -68,7 +68,7 @@ console.log("========================");
 
       <!-- Estadísticas -->
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div class="bg-white rounded-lg p-6 shadow-sm border">
+        <div class="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm border">
           <div class="flex items-center">
             <div class="flex-shrink-0">
               <div
@@ -90,7 +90,7 @@ console.log("========================");
                 <dt class="text-sm font-medium text-gray-500 truncate">
                   Total de Cuartos
                 </dt>
-                <dd class="text-lg font-medium text-gray-900">
+                <dd class="text-lg font-medium text-gray-900 dark:text-gray-100">
                   {cuartosProcesados.length}
                 </dd>
               </dl>
@@ -98,7 +98,7 @@ console.log("========================");
           </div>
         </div>
 
-        <div class="bg-white rounded-lg p-6 shadow-sm border">
+        <div class="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm border">
           <div class="flex items-center">
             <div class="flex-shrink-0">
               <div
@@ -121,7 +121,7 @@ console.log("========================");
                 <dt class="text-sm font-medium text-gray-500 truncate">
                   Activos
                 </dt>
-                <dd class="text-lg font-medium text-gray-900">
+                <dd class="text-lg font-medium text-gray-900 dark:text-gray-100">
                   {cuartosProcesados.length}
                 </dd>
               </dl>
@@ -129,7 +129,7 @@ console.log("========================");
           </div>
         </div>
 
-        <div class="bg-white rounded-lg p-6 shadow-sm border">
+        <div class="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm border">
           <div class="flex items-center">
             <div class="flex-shrink-0">
               <div
@@ -155,7 +155,7 @@ console.log("========================");
                 <dt class="text-sm font-medium text-gray-500 truncate">
                   Precio Promedio
                 </dt>
-                <dd class="text-lg font-medium text-gray-900">
+                <dd class="text-lg font-medium text-gray-900 dark:text-gray-100">
                   {
                     cuartosProcesados.length > 0
                       ? `$${Math.round(cuartosProcesados.reduce((sum, c) => sum + c.precio, 0) / cuartosProcesados.length).toLocaleString()}`
@@ -195,7 +195,7 @@ console.log("========================");
                 />
               </svg>
             </div>
-            <h3 class="mt-2 text-lg font-medium text-gray-900">
+            <h3 class="mt-2 text-lg font-medium text-gray-900 dark:text-gray-100">
               No tienes cuartos publicados
             </h3>
             <p class="mt-1 text-gray-500">

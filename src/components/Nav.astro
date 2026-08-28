@@ -46,7 +46,7 @@ console.log(
 console.log("=== FIN DEBUG ===");
 ---
 
-<section class="sticky top-0 z-50 bg-white shadow-sm border-b border-gray-200">
+<section class="sticky top-0 z-50 bg-white dark:bg-gray-800 dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
   <div class="max-w-6xl mx-auto px-4">
     <div class="flex justify-between items-center h-16">
       <!-- Logo -->
@@ -60,56 +60,69 @@ console.log("=== FIN DEBUG ===");
             height="32"
           />
         </a>
-        <h1 class="text-xl font-semibold text-gray-800">
+        <h1 class="text-xl font-semibold text-gray-800 dark:text-gray-200 dark:text-gray-100">
           <a href="/" aria-label="RANTU - Página de inicio">R A N T U</a>
         </h1>
       </div>
 
-      <!-- Desktop Navigation -->
-      <nav
-        class="hidden md:flex items-center space-x-6"
-        aria-label="Navegación principal"
-        role="navigation"
-      >
-        {
-          filteredItems.map((item) =>
-            item.isButton ? (
-              <a
-                href={item.href}
-                class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-                aria-label={`${item.label} - Acción principal`}
-              >
-                {item.label}
-              </a>
-            ) : (
-              <a
-                href={item.href}
-                class="text-gray-700 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded px-2 py-1"
-                aria-label={`Navegar a ${item.label}`}
-              >
-                {item.label}
-              </a>
+      <div class="flex items-center space-x-4">
+        <!-- Desktop Navigation -->
+        <nav
+          class="hidden md:flex items-center space-x-6"
+          aria-label="Navegación principal"
+          role="navigation"
+        >
+          {
+            filteredItems.map((item) =>
+              item.isButton ? (
+                <a
+                  href={item.href}
+                  class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                  aria-label={`${item.label} - Acción principal`}
+                >
+                  {item.label}
+                </a>
+              ) : (
+                <a
+                  href={item.href}
+                  class="text-gray-700 dark:text-gray-300 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded px-2 py-1"
+                  aria-label={`Navegar a ${item.label}`}
+                >
+                  {item.label}
+                </a>
+              )
             )
-          )
-        }
-      </nav>
+          }
+        </nav>
 
-      <!-- Mobile Menu Button -->
-      <button
-        id="mobile-btn"
-        class="md:hidden p-2 text-gray-700 hover:bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-        aria-expanded="false"
-        aria-controls="mobile-menu"
-        aria-label="Abrir menú de navegación móvil"
-      >
-        <BotonMovil />
-      </button>
+        <!-- Dark Mode Toggle -->
+        <button
+          id="theme-toggle"
+          type="button"
+          class="text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 rounded-lg text-sm p-2.5"
+          aria-label="Alternar modo oscuro"
+        >
+          <svg id="theme-toggle-dark-icon" class="hidden w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path></svg>
+          <svg id="theme-toggle-light-icon" class="hidden w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" fill-rule="evenodd" clip-rule="evenodd"></path></svg>
+        </button>
+
+        <!-- Mobile Menu Button -->
+        <button
+          id="mobile-btn"
+          class="md:hidden p-2 text-gray-700 dark:text-gray-300 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          aria-expanded="false"
+          aria-controls="mobile-menu"
+          aria-label="Abrir menú de navegación móvil"
+        >
+          <BotonMovil />
+        </button>
+      </div>
     </div>
 
     <!-- Mobile Menu -->
     <div
       id="mobile-menu"
-      class="md:hidden hidden py-4 border-t border-gray-200"
+      class="md:hidden hidden py-4 border-t border-gray-200 dark:border-gray-700"
       role="navigation"
       aria-label="Menú de navegación móvil"
     >
@@ -127,7 +140,7 @@ console.log("=== FIN DEBUG ===");
             ) : (
               <a
                 href={item.href}
-                class="text-gray-700 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded px-2 py-1"
+                class="text-gray-700 dark:text-gray-300 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded px-2 py-1"
                 aria-label={`Navegar a ${item.label}`}
               >
                 {item.label}
@@ -139,5 +152,31 @@ console.log("=== FIN DEBUG ===");
     </div>
   </div>
 </section>
+
+<script is:inline>
+  var themeToggleDarkIcon = document.getElementById('theme-toggle-dark-icon');
+  var themeToggleLightIcon = document.getElementById('theme-toggle-light-icon');
+
+  if (document.documentElement.classList.contains('dark')) {
+    themeToggleLightIcon.classList.remove('hidden');
+  } else {
+    themeToggleDarkIcon.classList.remove('hidden');
+  }
+
+  var themeToggleBtn = document.getElementById('theme-toggle');
+
+  themeToggleBtn.addEventListener('click', function() {
+    themeToggleDarkIcon.classList.toggle('hidden');
+    themeToggleLightIcon.classList.toggle('hidden');
+
+    if (document.documentElement.classList.contains('dark')) {
+      document.documentElement.classList.remove('dark');
+      localStorage.setItem('theme', 'light');
+    } else {
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('theme', 'dark');
+    }
+  });
+</script>
 
 <script src="../logic/scriptNav.js"></script>
