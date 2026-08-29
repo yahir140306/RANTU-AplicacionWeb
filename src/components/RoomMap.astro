@@ -1,0 +1,36 @@
+---
+// src/components/RoomMap.astro
+const { cuarto } = Astro.props;
+---
+
+{cuarto.latitud && cuarto.longitud ? (
+  <div class="flex-grow min-h-[250px] w-full rounded-lg overflow-hidden border border-gray-200 relative z-0">
+    <div id="room-map" class="w-full h-full absolute inset-0" data-lat={cuarto.latitud} data-lng={cuarto.longitud} data-title={cuarto.titulo}></div>
+  </div>
+) : (
+  <div class="flex-grow bg-gray-100 rounded-lg flex items-center justify-center min-h-[200px]">
+    <p class="text-gray-500">Ubicación exacta no disponible</p>
+  </div>
+)}
+
+<script is:inline>
+  document.addEventListener("DOMContentLoaded", function() {
+    const mapContainer = document.getElementById("room-map");
+    if (mapContainer && typeof L !== "undefined") {
+      const lat = parseFloat(mapContainer.dataset.lat);
+      const lng = parseFloat(mapContainer.dataset.lng);
+      const title = mapContainer.dataset.title || "Cuarto";
+      
+      if (!isNaN(lat) && !isNaN(lng)) {
+        const map = L.map('room-map').setView([lat, lng], 15);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+        
+        L.marker([lat, lng]).addTo(map)
+          .bindPopup(`<b>${title}</b>`)
+          .openPopup();
+      }
+    }
+  });
+</script>

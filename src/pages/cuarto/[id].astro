@@ -1,7 +1,9 @@
 ---
 import Layout from "../../layouts/Layout.astro";
-import DownloadCard from "../../components/DownloadCard.astro";
 import ImageGallery from "../../components/ImageGallery.astro";
+import DownloadCard from "../../components/DownloadCard.astro";
+import RoomComments from "../../components/RoomComments.astro";
+import RoomMap from "../../components/RoomMap.astro";
 import { createClient } from "../../lib/supabase";
 import { decodeHexUrl } from "../../utils/urlDecoder.js";
 
@@ -16,30 +18,16 @@ const supabase = createClient({
 const { data: { user } } = await supabase.auth.getUser();
 const currentUserId = user?.id;
 
-// ✅ CORREGIDO: Consulta para un solo cuarto (sin filtrar por activo)
+// Consulta para un solo cuarto
 const { data: cuarto, error } = await supabase
   .from("cuartos")
-  .select(
-    `
-    id,
-    titulo,
-    descripcion,
-    precio,
-    celular,
-    caracteristicas,
-    ubicacion,
-    imagen_1,
-    imagen_2,
-    imagen_3,
-    created_at,
-    user_id,
-    activo,
-    latitud,
-    longitud
-  `
-  )
+  .select(`
+    id, titulo, descripcion, precio, celular, caracteristicas,
+    ubicacion, imagen_1, imagen_2, imagen_3, created_at,
+    user_id, activo, latitud, longitud
+  `)
   .eq("id", id)
-  .single(); // ✅ CORREGIDO: .single() para obtener un solo registro
+  .single();
 
 if (error || !cuarto) {
   return Astro.redirect("/404");
@@ -68,15 +56,12 @@ try {
   console.error("Error preloading base64 image on server", e);
 }
 
-// ✅ Función para generar enlace de WhatsApp (servidor)
+// Función para generar enlace de WhatsApp (servidor)
 function generarEnlaceWhatsApp(celular, titulo, precio) {
   if (!celular) return "#";
-
   const numeroLimpio = celular.replace(/[\s\-\(\)]/g, "");
   const mensaje = `Hola! Me interesa el cuarto "${titulo}" con precio de $${precio}. ¿Podrías darme más información?`;
-  const mensajeCodificado = encodeURIComponent(mensaje);
-
-  return `https://wa.me/${numeroLimpio}?text=${mensajeCodificado}`;
+  return `https://wa.me/${numeroLimpio}?text=${encodeURIComponent(mensaje)}`;
 }
 ---
 
@@ -86,83 +71,22 @@ function generarEnlaceWhatsApp(celular, titulo, precio) {
       <meta charset="UTF-8" />
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       <title>{cuarto.titulo}</title>
-      <!-- ✅ CORREGIDO: cuarto.titulo en lugar de cuarto.name -->
       <script src="https://cdn.tailwindcss.com"></script>
       <script src="https://cdn.jsdelivr.net/npm/html-to-image@1.11.11/dist/html-to-image.js"></script>
       <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
       <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
       <style>
-        .no-scrollbar::-webkit-scrollbar {
-          display: none;
-        }
-        .no-scrollbar {
-          -ms-overflow-style: none;
-          scrollbar-width: none;
-        }
-
-        .download-card {
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-          font-family:
-            "Inter",
-            -apple-system,
-            BlinkMacSystemFont,
-            sans-serif;
-        }
-
-        .download-hidden {
-          position: absolute;
-          top: -9999px;
-          left: -9999px;
-          width: 800px;
-          height: 600px;
-        }
-
-        .line-clamp-4 {
-          display: -webkit-box;
-          -webkit-line-clamp: 4;
-          -webkit-box-orient: vertical;
-          overflow: hidden;
-        }
-
-        .star-btn {
-          cursor: pointer;
-          user-select: none;
-        }
-
-        .star-btn:hover,
-        .star-btn.active {
-          color: #fcd34d !important;
-        }
-
-        .comment-card {
-          transition: all 0.2s ease;
-        }
-
-        .comment-card:hover {
-          transform: translateY(-1px);
-          box-shadow:
-            0 4px 6px -1px rgba(0, 0, 0, 0.1),
-            0 2px 4px -1px rgba(0, 0, 0, 0.06);
-        }
-
-        .btn-whatsapp {
-          background-color: #25d366;
-          color: white;
-          padding: 12px 20px;
-          text-decoration: none;
-          border-radius: 8px;
-          display: inline-flex;
-          align-items: center;
-          gap: 8px;
-          font-weight: bold;
-          transition: background-color 0.3s;
-        }
-
-        .btn-whatsapp:hover {
-          background-color: #20ba5a;
-          color: white;
-          text-decoration: none;
-        }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .download-card { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); font-family: "Inter", sans-serif; }
+        .download-hidden { position: absolute; top: -9999px; left: -9999px; width: 800px; height: 600px; }
+        .line-clamp-4 { display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+        .star-btn { cursor: pointer; user-select: none; }
+        .star-btn:hover, .star-btn.active { color: #fcd34d !important; }
+        .comment-card { transition: all 0.2s ease; }
+        .comment-card:hover { transform: translateY(-1px); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        .btn-whatsapp { background-color: #25d366; color: white; padding: 12px 20px; text-decoration: none; border-radius: 8px; display: inline-flex; align-items: center; gap: 8px; font-weight: bold; transition: background-color 0.3s; }
+        .btn-whatsapp:hover { background-color: #20ba5a; color: white; text-decoration: none; }
       </style>
     </head>
     <body class="bg-gray-100 text-gray-800 dark:text-gray-200 min-h-screen">
@@ -172,10 +96,9 @@ function generarEnlaceWhatsApp(celular, titulo, precio) {
 
         <!-- Título y precio -->
         <h1 class="text-3xl font-bold">{cuarto.titulo}</h1>
-        <p class="text-xl text-blue-600 font-semibold">
-          ${cuarto.precio} / mes
-        </p>
+        <p class="text-xl text-blue-600 font-semibold">${cuarto.precio} / mes</p>
 
+        <!-- Galería de Imágenes -->
         <ImageGallery imagenes={imagenes} />
 
         <!-- Descripción -->
@@ -184,642 +107,38 @@ function generarEnlaceWhatsApp(celular, titulo, precio) {
           <p class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">{cuarto.descripcion}</p>
         </section>
 
-        <!-- Info -->
+        <!-- Info y Mapa -->
         <section class="grid md:grid-cols-2 gap-4">
           <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
             <h3 class="font-semibold mb-2">Características</h3>
-            <p class="text-gray-700 dark:text-gray-300">
-              {cuarto.caracteristicas || "No especificadas"}
-            </p>
+            <p class="text-gray-700 dark:text-gray-300">{cuarto.caracteristicas || "No especificadas"}</p>
           </div>
           <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow flex flex-col h-full">
             <h3 class="font-semibold mb-2">Ubicación</h3>
             <p class="text-gray-700 dark:text-gray-300 mb-4">{cuarto.ubicacion || "No especificada"}</p>
-            {cuarto.latitud && cuarto.longitud ? (
-              <div class="flex-grow min-h-[250px] w-full rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700 relative z-0">
-                <div id="room-map" class="w-full h-full absolute inset-0" data-lat={cuarto.latitud} data-lng={cuarto.longitud} data-title={cuarto.titulo}></div>
-              </div>
-            ) : (
-              <div class="flex-grow bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center min-h-[200px]">
-                <p class="text-gray-500 dark:text-gray-400">Ubicación exacta no disponible</p>
-              </div>
-            )}
+            <RoomMap cuarto={cuarto} />
           </div>
         </section>
 
         <!-- Sección de Comentarios -->
-        <section class="space-y-6">
-          <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
-            <div class="flex items-center justify-between mb-4">
-              <h2 class="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                Comentarios y Calificaciones
-              </h2>
-              <div id="rating-summary" class="text-right">
-                <div class="flex items-center justify-end space-x-2">
-                  <div class="flex text-yellow-400" id="average-stars"></div>
-                  <span
-                    id="average-rating"
-                    class="text-lg font-semibold text-gray-700 dark:text-gray-300">0.0</span
-                  >
-                </div>
-                <p class="text-sm text-gray-500">
-                  <span id="total-reviews">0</span> comentarios
-                </p>
-              </div>
-            </div>
-
-            <!-- Formulario para agregar comentario -->
-            <div class="border-t pt-4" id="comment-form-section">
-              <h3 class="text-lg font-semibold mb-4">Deja tu comentario</h3>
-              {currentUserId === cuarto.user_id ? (
-                <div class="bg-blue-50 border border-blue-200 rounded-lg p-6 text-center">
-                  <p class="text-blue-700 font-medium">
-                    Eres el dueño de este cuarto. No puedes calificarte a ti mismo.
-                  </p>
-                </div>
-              ) : cuarto.activo ? (
-              <form id="comment-form" class="space-y-4">
-                <input type="hidden" name="cuarto_id" value={cuarto.id} />
-
-                <!-- Calificación con estrellas -->
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-                    >Calificación *</label
-                  >
-                  <div class="flex items-center space-x-1" id="star-rating">
-                    {
-                      [1, 2, 3, 4, 5].map((star) => (
-                        <button
-                          type="button"
-                          class="star-btn text-3xl text-gray-300 hover:text-yellow-400 transition-colors focus:outline-none"
-                          data-rating={star}
-                        >
-                          ★
-                        </button>
-                      ))
-                    }
-                  </div>
-                  <input
-                    type="hidden"
-                    name="calificacion"
-                    id="rating-input"
-                    required
-                  />
-                  <p class="text-xs text-gray-500 mt-1">
-                    Haz clic en las estrellas para calificar
-                  </p>
-                </div>
-
-                <!-- Comentario -->
-                <div>
-                  <label
-                    for="comentario"
-                    class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-                  >
-                    Comentario *
-                  </label>
-                  <textarea
-                    id="comentario"
-                    name="comentario"
-                    rows="4"
-                    required
-                    minlength="10"
-                    maxlength="500"
-                    placeholder="Comparte tu experiencia sobre este cuarto..."
-                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
-                  ></textarea>
-                  <p class="text-xs text-gray-500 mt-1">
-                    Mínimo 10 caracteres, máximo 500
-                  </p>
-                </div>
-
-                <!-- Botón enviar -->
-                <button
-                  type="submit"
-                  id="submit-comment"
-                  class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-colors font-medium"
-                >
-                  Publicar Comentario
-                </button>
-              </form>
-              ) : (
-              <div class="bg-gray-100 border border-gray-300 rounded-lg p-6 text-center">
-                <p class="text-gray-600 font-medium">
-                  ❌ Este cuarto no está disponible actualmente. No puedes dejar comentarios.
-                </p>
-              </div>
-              )}
-            </div>
-          </div>
-
-          <!-- Lista de Comentarios -->
-          <div id="comments-list" class="space-y-4"></div>
-        </section>
+        <RoomComments cuarto={cuarto} currentUserId={currentUserId} />
 
         <!-- Botones de contacto y descarga -->
-        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
           {cuarto.activo ? (
-          <a
-            href={generarEnlaceWhatsApp(
-              cuarto.celular,
-              cuarto.titulo,
-              cuarto.precio
-            )}
-            target="_blank"
-            class="btn-whatsapp"
-          >
-            📱 Contactar al Propietario
-          </a>
+            <a href={generarEnlaceWhatsApp(cuarto.celular, cuarto.titulo, cuarto.precio)} target="_blank" class="btn-whatsapp w-full sm:w-auto justify-center">
+              📱 Contactar al Propietario
+            </a>
           ) : (
-          <button
-            disabled
-            class="bg-gray-400 text-white px-6 py-3 rounded-lg cursor-not-allowed opacity-60 flex items-center justify-center gap-2"
-          >
-            📱 No Disponible
-          </button>
-          )}
-          {cuarto.activo ? (
-          <button
-            id="download-btn"
-            class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors flex items-center justify-center gap-2"
-          >
-            <svg
-              class="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M12 10v6m0 0l-4-4m4 4l4-4m-6 2a8 8 0 100-16 8 8 0 000 16z"
-              ></path>
-            </svg>
-            Descargar Tarjeta
-          </button>
-          ) : (
-          <button
-            disabled
-            class="bg-gray-400 text-white px-6 py-3 rounded-lg cursor-not-allowed opacity-60 flex items-center justify-center gap-2"
-          >
-            <svg
-              class="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M6 18L18 6M6 6l12 12"
-              ></path>
-            </svg>
-            No Disponible
-          </button>
+            <button disabled class="bg-gray-400 text-white px-6 py-3 rounded-lg cursor-not-allowed opacity-60 flex items-center justify-center gap-2 w-full sm:w-auto">
+              📱 No Disponible
+            </button>
           )}
         </div>
       </main>
 
-      
-
-          <!-- Contenido principal -->
-          <div class="flex-1 flex items-center justify-between py-8">
-            <div class="w-80 h-60 rounded-xl overflow-hidden shadow-2xl bg-gray-200 dark:bg-gray-700">
-              <img
-                src={portadaBase64}
-                alt={cuarto.titulo}
-                class="w-full h-full object-cover"
-              />
-            </div>
-
-            <div class="flex-1 pl-8">
-              <h2 class="text-4xl font-bold mb-4 leading-tight">
-                {cuarto.titulo}
-              </h2>
-              <p class="text-lg opacity-90 mb-6 leading-relaxed line-clamp-4">
-                {cuarto.descripcion}
-              </p>
-
-              <div class="space-y-2">
-                <div class="flex items-center space-x-2">
-                  <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                    <path
-                      fill-rule="evenodd"
-                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                      clip-rule="evenodd"></path>
-                  </svg>
-                  <span
-                    >{
-                      cuarto.caracteristicas
-                        ? cuarto.caracteristicas.split(",")[0]
-                        : "Completamente amueblado"
-                    }</span
-                  >
-                </div>
-                <div class="flex items-center space-x-2">
-                  <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                    <path
-                      fill-rule="evenodd"
-                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                      clip-rule="evenodd"></path>
-                  </svg>
-                  <span
-                    >{
-                      cuarto.ubicacion
-                        ? cuarto.ubicacion.split(",")[0]
-                        : "Ubicación céntrica"
-                    }</span
-                  >
-                </div>
-                <div class="flex items-center space-x-2">
-                  <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                    <path
-                      fill-rule="evenodd"
-                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                      clip-rule="evenodd"></path>
-                  </svg>
-                  <span>Disponible inmediatamente</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Footer -->
-          <div class="flex items-center justify-between">
-            <div class="flex items-center space-x-4">
-              <div class="text-sm opacity-80">
-                🏠 Encuentra más opciones en R A N T U
-              </div>
-            </div>
-            <div class="text-sm opacity-80">
-              Generado el {new Date().toLocaleDateString("es-ES")}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Scripts -->
-      <script is:inline define:vars={{ cuarto }}>
-        let selectedRating = 0;
-        const cuartoId = cuarto.id;
-
-        console.log("🏠 ID del cuarto:", cuartoId);
-
-        // Función para renderizar estrellas
-        function renderStars(rating, className = "text-yellow-400") {
-          let stars = "";
-          for (let i = 1; i <= 5; i++) {
-            if (i <= rating) {
-              stars += `<span class="${className}">★</span>`;
-            } else if (i - 0.5 <= rating) {
-              stars += `<span class="${className}">☆</span>`;
-            } else {
-              stars += `<span class="text-gray-300">☆</span>`;
-            }
-          }
-          return stars;
-        }
-
-        // Manejar clicks en las estrellas
-        document.querySelectorAll(".star-btn").forEach((btn) => {
-          btn.addEventListener("click", function () {
-            selectedRating = parseInt(this.dataset.rating);
-            document.getElementById("rating-input").value = selectedRating;
-
-            document.querySelectorAll(".star-btn").forEach((star, index) => {
-              if (index < selectedRating) {
-                star.classList.add("active");
-                star.style.color = "#FCD34D";
-              } else {
-                star.classList.remove("active");
-                star.style.color = "#D1D5DB";
-              }
-            });
-          });
-        });
-
-        // Cargar comentarios
-        async function cargarComentarios() {
-          try {
-            console.log("🔍 Cargando comentarios para cuarto ID:", cuartoId);
-            const response = await fetch(
-              `/api/cuartos/${cuartoId}/comentarios`
-            );
-
-            if (!response.ok) {
-              const errorData = await response.json();
-              console.error("❌ Error cargando comentarios:", errorData);
-              return;
-            }
-
-            const data = await response.json();
-            console.log("✅ Comentarios cargados:", data);
-
-            if (data.success) {
-              mostrarEstadisticas(data.estadisticas);
-              mostrarComentarios(data.comentarios);
-            } else {
-              console.error("Error cargando comentarios:", data.error);
-            }
-          } catch (error) {
-            console.error("💥 Error en cargarComentarios:", error);
-          }
-        }
-
-        // Mostrar estadísticas
-        function mostrarEstadisticas(estadisticas) {
-          document.getElementById("average-rating").textContent =
-            estadisticas.promedio.toFixed(1);
-          document.getElementById("total-reviews").textContent =
-            estadisticas.total;
-          document.getElementById("average-stars").innerHTML = renderStars(
-            estadisticas.promedio
-          );
-        }
-
-        // Mostrar comentarios
-        function mostrarComentarios(comentarios) {
-          const container = document.getElementById("comments-list");
-
-          if (comentarios.length === 0) {
-            container.innerHTML = `
-              <div class="bg-gray-50 rounded-lg p-8 text-center">
-                <div class="text-gray-400 text-4xl mb-2">💬</div>
-                <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">No hay comentarios aún</h3>
-                <p class="text-gray-500">¡Sé el primero en comentar sobre este cuarto!</p>
-              </div>
-            `;
-            return;
-          }
-
-          container.innerHTML = comentarios
-            .map(
-              (comentario) => `
-            <div class="comment-card bg-white dark:bg-gray-800 p-6 rounded-lg shadow border">
-              <div class="flex items-start justify-between mb-3">
-                <div class="flex items-center space-x-3">
-                  <div class="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white font-medium">
-                    ${comentario.usuario_inicial || "U"}
-                  </div>
-                  <div>
-                    <h4 class="font-medium text-gray-900 dark:text-gray-100">
-                      ${comentario.usuario_email ? comentario.usuario_email.split("@")[0] : "Usuario"}
-                    </h4>
-                    <div class="flex items-center space-x-2">
-                      <div class="flex">
-                        ${renderStars(comentario.calificacion)}
-                      </div>
-                      <span class="text-sm text-gray-500">
-                        ${new Date(comentario.created_at).toLocaleString("es-ES", { year: "numeric", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <p class="text-gray-700 dark:text-gray-300 leading-relaxed">
-                ${comentario.comentario}
-              </p>
-            </div>
-          `
-            )
-            .join("");
-        }
-
-        // Manejar envío del formulario
-        document
-          .getElementById("comment-form")
-          .addEventListener("submit", async function (e) {
-            e.preventDefault();
-
-            const submitBtn = document.getElementById("submit-comment");
-            const originalText = submitBtn.textContent;
-
-            if (selectedRating === 0) {
-              alert("Por favor selecciona una calificación");
-              return;
-            }
-
-            try {
-              submitBtn.textContent = "Publicando...";
-              submitBtn.disabled = true;
-
-              const formData = new FormData(this);
-              console.log("📝 Enviando comentario para cuarto:", cuartoId);
-
-              const response = await fetch(
-                `/api/cuartos/${cuartoId}/comentarios`,
-                {
-                  method: "POST",
-                  body: formData,
-                }
-              );
-
-              const result = await response.json();
-              console.log("📨 Respuesta del servidor:", result);
-
-              if (result.success) {
-                alert("¡Comentario publicado exitosamente!");
-
-                // Limpiar formulario
-                document.getElementById("comentario").value = "";
-                selectedRating = 0;
-                document.getElementById("rating-input").value = "";
-                document.querySelectorAll(".star-btn").forEach((star) => {
-                  star.classList.remove("active");
-                  star.style.color = "#D1D5DB";
-                });
-
-                // Recargar comentarios
-                cargarComentarios();
-              } else {
-                alert("Error: " + result.error);
-              }
-            } catch (error) {
-              console.error("💥 Error:", error);
-              alert("Error publicando comentario");
-            } finally {
-              submitBtn.textContent = originalText;
-              submitBtn.disabled = false;
-            }
-          });
-
-        // Función para descargar tarjeta
-        async function descargarTarjeta() {
-          const downloadBtn = document.getElementById("download-btn");
-          const originalText = downloadBtn.innerHTML;
-
-          try {
-            downloadBtn.innerHTML = `
-              <svg class="w-5 h-5 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
-              </svg>
-              Generando...
-            `;
-            downloadBtn.disabled = true;
-
-            const card = document.getElementById("download-card");
-            
-            // Fix: Mover la tarjeta al viewport pero oculta para evitar que html2canvas falle por estar off-screen
-            const originalCssText = card.style.cssText;
-            const originalClassName = card.className;
-            card.className = "download-card w-full text-white p-8 flex flex-col justify-between";
-            card.style.position = "absolute";
-            card.style.top = "0px";
-            card.style.left = "0px";
-            card.style.width = "800px";
-            card.style.height = "600px";
-            card.style.zIndex = "-1000";
-            card.style.opacity = "0";
-
-            const dataUrl = await htmlToImage.toPng(card, {
-              width: 800,
-              height: 600,
-              pixelRatio: 2,
-              style: {
-                transform: 'none',
-                opacity: '1' // Sobrescribir el opacity: 0 que le pusimos temporalmente al DOM real
-              }
-            });
-            
-            // Restaurar estado original
-            card.className = originalClassName;
-            card.style.cssText = originalCssText;
-
-            const link = document.createElement("a");
-            link.download = `cuarto-${encodeURIComponent(cuarto.titulo)}-${Date.now()}.png`;
-            link.href = dataUrl;
-
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-
-            alert("¡Tarjeta descargada exitosamente!");
-          } catch (error) {
-            console.error("Error generando tarjeta:", error);
-            alert("Error al generar la tarjeta: " + (error.message || error));
-          } finally {
-            downloadBtn.innerHTML = originalText;
-            downloadBtn.disabled = false;
-          }
-        }
-
-        // Event listeners
-        document.addEventListener("DOMContentLoaded", function () {
-          document
-            .getElementById("download-btn")
-            .addEventListener("click", descargarTarjeta);
-          cargarComentarios();
-        });
-      </script>
-
-      <script is:inline>
-        // === LOGICA DEL MODAL DE IMAGEN ===
-        let currentModalImages = [];
-        let currentModalIndex = 0;
-
-        function openImageModal(src) {
-          // Recopilar todas las imágenes del carrusel
-          const carouselImages = document.querySelectorAll('#carousel img');
-          currentModalImages = Array.from(carouselImages).map(img => img.src);
-          currentModalIndex = currentModalImages.indexOf(src);
-          if (currentModalIndex === -1) currentModalIndex = 0;
-
-          updateModalImage();
-          
-          const modal = document.getElementById("imageModal");
-          modal.classList.remove("hidden");
-          document.body.style.overflow = "hidden"; // Prevent scrolling
-        }
-
-        function updateModalImage() {
-          const modalImg = document.getElementById("modalImage");
-          modalImg.style.opacity = '0.5';
-          setTimeout(() => {
-            modalImg.src = currentModalImages[currentModalIndex];
-            modalImg.style.opacity = '1';
-          }, 150);
-        }
-
-        function nextModalImage(e) {
-          if (e) e.stopPropagation();
-          currentModalIndex = (currentModalIndex + 1) % currentModalImages.length;
-          updateModalImage();
-        }
-
-        function prevModalImage(e) {
-          if (e) e.stopPropagation();
-          currentModalIndex = (currentModalIndex - 1 + currentModalImages.length) % currentModalImages.length;
-          updateModalImage();
-        }
-
-        function closeImageModal() {
-          const modal = document.getElementById("imageModal");
-          modal.classList.add("hidden");
-          document.body.style.overflow = "auto";
-        }
-
-        // Keyboard support
-        document.addEventListener("keydown", function(e) {
-          const modal = document.getElementById("imageModal");
-          if (!modal.classList.contains("hidden")) {
-            if (e.key === "Escape") closeImageModal();
-            else if (e.key === "ArrowRight") nextModalImage();
-            else if (e.key === "ArrowLeft") prevModalImage();
-          }
-        });
-
-        // Close modal on click outside image
-        document.getElementById("imageModal")?.addEventListener("click", function(e) {
-          if (e.target === this) closeImageModal();
-        });
-
-        // Touch swipe support
-        let touchStartX = 0;
-        let touchEndX = 0;
-        const modalElement = document.getElementById("imageModal");
-        
-        modalElement?.addEventListener("touchstart", function(e) {
-          touchStartX = e.changedTouches[0].screenX;
-        }, { passive: true });
-        
-        modalElement?.addEventListener("touchend", function(e) {
-          touchEndX = e.changedTouches[0].screenX;
-          handleSwipe();
-        }, { passive: true });
-        
-        function handleSwipe() {
-          if (modalElement.classList.contains("hidden")) return;
-          const swipeThreshold = 50;
-          if (touchEndX < touchStartX - swipeThreshold) {
-            nextModalImage(); // Swipe left -> next
-          } else if (touchEndX > touchStartX + swipeThreshold) {
-            prevModalImage(); // Swipe right -> prev
-          }
-        }
-
-        // === LOGICA DEL MAPA ===
-        document.addEventListener("DOMContentLoaded", function() {
-          const mapContainer = document.getElementById("room-map");
-          if (mapContainer && typeof L !== "undefined") {
-            const lat = parseFloat(mapContainer.dataset.lat);
-            const lng = parseFloat(mapContainer.dataset.lng);
-            const title = mapContainer.dataset.title || "Cuarto";
-            
-            if (!isNaN(lat) && !isNaN(lng)) {
-              const map = L.map('room-map').setView([lat, lng], 15);
-              L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '© OpenStreetMap contributors'
-              }).addTo(map);
-              
-              L.marker([lat, lng]).addTo(map)
-                .bindPopup(`<b>${title}</b>`)
-                .openPopup();
-            }
-          }
-        });
-      </script>
+      <!-- Tarjeta de Descarga (Oculta) -->
+      <DownloadCard cuarto={cuarto} portadaBase64={portadaBase64} />
     </body>
   </html>
 </Layout>

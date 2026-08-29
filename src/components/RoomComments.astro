@@ -1,0 +1,281 @@
+---
+// src/components/RoomComments.astro
+const { cuarto, currentUserId } = Astro.props;
+---
+
+<section class="space-y-6">
+  <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="text-2xl font-bold text-gray-900 dark:text-gray-100">
+        Comentarios y Calificaciones
+      </h2>
+      <div id="rating-summary" class="text-right">
+        <div class="flex items-center justify-end space-x-2">
+          <div class="flex text-yellow-400" id="average-stars"></div>
+          <span
+            id="average-rating"
+            class="text-lg font-semibold text-gray-700 dark:text-gray-300">0.0</span
+          >
+        </div>
+        <p class="text-sm text-gray-500">
+          <span id="total-reviews">0</span> comentarios
+        </p>
+      </div>
+    </div>
+
+    <!-- Formulario para agregar comentario -->
+    <div class="border-t pt-4" id="comment-form-section">
+      <h3 class="text-lg font-semibold mb-4">Deja tu comentario</h3>
+      {currentUserId === cuarto.user_id ? (
+        <div class="bg-blue-50 border border-blue-200 rounded-lg p-6 text-center">
+          <p class="text-blue-700 font-medium">
+            Eres el dueño de este cuarto. No puedes calificarte a ti mismo.
+          </p>
+        </div>
+      ) : cuarto.activo ? (
+      <form id="comment-form" class="space-y-4">
+        <input type="hidden" name="cuarto_id" value={cuarto.id} />
+
+        <!-- Calificación con estrellas -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+            >Calificación *</label
+          >
+          <div class="flex items-center space-x-1" id="star-rating">
+            {
+              [1, 2, 3, 4, 5].map((star) => (
+                <button
+                  type="button"
+                  class="star-btn text-3xl text-gray-300 hover:text-yellow-400 transition-colors focus:outline-none"
+                  data-rating={star}
+                >
+                  ★
+                </button>
+              ))
+            }
+          </div>
+          <input
+            type="hidden"
+            name="calificacion"
+            id="rating-input"
+            required
+          />
+          <p class="text-xs text-gray-500 mt-1">
+            Haz clic en las estrellas para calificar
+          </p>
+        </div>
+
+        <!-- Comentario -->
+        <div>
+          <label
+            for="comentario"
+            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+          >
+            Comentario *
+          </label>
+          <textarea
+            id="comentario"
+            name="comentario"
+            rows="4"
+            required
+            minlength="10"
+            maxlength="500"
+            placeholder="Comparte tu experiencia sobre este cuarto..."
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+          ></textarea>
+          <p class="text-xs text-gray-500 mt-1">
+            Mínimo 10 caracteres, máximo 500
+          </p>
+        </div>
+
+        <!-- Botón enviar -->
+        <button
+          type="submit"
+          id="submit-comment"
+          class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-colors font-medium"
+        >
+          Publicar Comentario
+        </button>
+      </form>
+      ) : (
+      <div class="bg-gray-100 border border-gray-300 rounded-lg p-6 text-center">
+        <p class="text-gray-600 font-medium">
+          ❌ Este cuarto no está disponible actualmente. No puedes dejar comentarios.
+        </p>
+      </div>
+      )}
+    </div>
+  </div>
+
+  <!-- Lista de Comentarios -->
+  <div id="comments-list" class="space-y-4"></div>
+</section>
+
+<script is:inline define:vars={{ cuartoId: cuarto.id }}>
+  let selectedRating = 0;
+
+  // Función para renderizar estrellas
+  function renderStars(rating, className = "text-yellow-400") {
+    let stars = "";
+    for (let i = 1; i <= 5; i++) {
+      if (i <= rating) {
+        stars += `<span class="${className}">★</span>`;
+      } else if (i - 0.5 <= rating) {
+        stars += `<span class="${className}">☆</span>`;
+      } else {
+        stars += `<span class="text-gray-300">☆</span>`;
+      }
+    }
+    return stars;
+  }
+
+  // Manejar clicks en las estrellas
+  document.querySelectorAll(".star-btn").forEach((btn) => {
+    btn.addEventListener("click", function () {
+      selectedRating = parseInt(this.dataset.rating);
+      document.getElementById("rating-input").value = selectedRating;
+
+      document.querySelectorAll(".star-btn").forEach((star, index) => {
+        if (index < selectedRating) {
+          star.classList.add("active");
+          star.style.color = "#FCD34D";
+        } else {
+          star.classList.remove("active");
+          star.style.color = "#D1D5DB";
+        }
+      });
+    });
+  });
+
+  // Mostrar estadísticas
+  function mostrarEstadisticas(estadisticas) {
+    document.getElementById("average-rating").textContent =
+      estadisticas.promedio.toFixed(1);
+    document.getElementById("total-reviews").textContent =
+      estadisticas.total;
+    document.getElementById("average-stars").innerHTML = renderStars(
+      estadisticas.promedio
+    );
+  }
+
+  // Mostrar comentarios
+  function mostrarComentarios(comentarios) {
+    const container = document.getElementById("comments-list");
+
+    if (comentarios.length === 0) {
+      container.innerHTML = `
+        <div class="bg-gray-50 rounded-lg p-8 text-center">
+          <div class="text-gray-400 text-4xl mb-2">💬</div>
+          <h3 class="text-lg font-medium text-gray-900 mb-2">No hay comentarios aún</h3>
+          <p class="text-gray-500">¡Sé el primero en comentar sobre este cuarto!</p>
+        </div>
+      `;
+      return;
+    }
+
+    container.innerHTML = comentarios
+      .map(
+        (comentario) => `
+      <div class="comment-card bg-white p-6 rounded-lg shadow border">
+        <div class="flex items-start justify-between mb-3">
+          <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white font-medium">
+              ${comentario.usuario_inicial || "U"}
+            </div>
+            <div>
+              <h4 class="font-medium text-gray-900">
+                ${comentario.usuario_email ? comentario.usuario_email.split("@")[0] : "Usuario"}
+              </h4>
+              <div class="flex items-center space-x-2">
+                <div class="flex">
+                  ${renderStars(comentario.calificacion)}
+                </div>
+                <span class="text-sm text-gray-500">
+                  ${new Date(comentario.created_at).toLocaleString("es-ES", { year: "numeric", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <p class="text-gray-700 leading-relaxed">
+          ${comentario.comentario}
+        </p>
+      </div>
+    `
+      )
+      .join("");
+  }
+
+  // Cargar comentarios
+  async function cargarComentarios() {
+    try {
+      const response = await fetch(\`/api/cuartos/\${cuartoId}/comentarios\`);
+
+      if (!response.ok) return;
+
+      const data = await response.json();
+      if (data.success) {
+        mostrarEstadisticas(data.estadisticas);
+        mostrarComentarios(data.comentarios);
+      }
+    } catch (error) {
+      console.error("Error en cargarComentarios:", error);
+    }
+  }
+
+  // Manejar envío del formulario
+  const commentForm = document.getElementById("comment-form");
+  if (commentForm) {
+    commentForm.addEventListener("submit", async function (e) {
+      e.preventDefault();
+
+      const submitBtn = document.getElementById("submit-comment");
+      const originalText = submitBtn.textContent;
+
+      if (selectedRating === 0) {
+        alert("Por favor selecciona una calificación");
+        return;
+      }
+
+      try {
+        submitBtn.textContent = "Publicando...";
+        submitBtn.disabled = true;
+
+        const formData = new FormData(this);
+        const response = await fetch(\`/api/cuartos/\${cuartoId}/comentarios\`, {
+            method: "POST",
+            body: formData,
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          alert("¡Comentario publicado exitosamente!");
+
+          // Limpiar formulario
+          document.getElementById("comentario").value = "";
+          selectedRating = 0;
+          document.getElementById("rating-input").value = "";
+          document.querySelectorAll(".star-btn").forEach((star) => {
+            star.classList.remove("active");
+            star.style.color = "#D1D5DB";
+          });
+
+          // Recargar comentarios
+          cargarComentarios();
+        } else {
+          alert("Error: " + result.error);
+        }
+      } catch (error) {
+        console.error("Error:", error);
+        alert("Error publicando comentario");
+      } finally {
+        submitBtn.textContent = originalText;
+        submitBtn.disabled = false;
+      }
+    });
+  }
+
+  // Initial load
+  document.addEventListener("DOMContentLoaded", cargarComentarios);
+</script>
