@@ -167,8 +167,8 @@
           canvas.toBlob(
             (blob) => {
               if (blob && (blob.size <= maxSize || q <= 0.3)) {
-                const compressedFile = new File([blob], file.name, {
-                  type: "image/jpeg",
+                const compressedFile = new File([blob], file.name.replace(/\.[^/.]+$/, ".webp"), {
+                  type: "image/webp",
                   lastModified: Date.now(),
                 });
                 resolve(compressedFile);
@@ -178,7 +178,7 @@
                 resolve(file);
               }
             },
-            "image/jpeg",
+            "image/webp",
             q
           );
         };
