@@ -72,71 +72,15 @@ export async function POST({ request, cookies }) {
         : "No hay imagen",
     });
 
-    // ✅ VALIDACIONES MEJORADAS
-    if (
-      !titulo ||
-      !descripcion ||
-      !precio ||
-      isNaN(precio) ||
-      !celular ||
-      !caracteristicas ||
-      !ubicacion
-    ) {
-      console.log("❌ Faltan campos obligatorios");
+    // ✅ VALIDACIONES REFRACTORIZADAS
+    const validationError = validateRoomData({ titulo, descripcion, precio, celular, caracteristicas, ubicacion });
+    if (validationError) {
       return new Response(
-        JSON.stringify({
-          error:
-            "Todos los campos son obligatorios (título, descripción, precio, celular, características, ubicación)",
-          success: false,
-        }),
+        JSON.stringify({ error: validationError, success: false }),
         { status: 400, headers: { "Content-Type": "application/json" } }
       );
     }
-
-    // Validar precio
-    if (precio <= 0) {
-      return new Response(
-        JSON.stringify({
-          error: "El precio debe ser mayor a 0",
-          success: false,
-        }),
-        { status: 400, headers: { "Content-Type": "application/json" } }
-      );
-    }
-
-    // Validar formato de celular
-    const celularRegex = /^[\+]?[0-9\s\-\(\)]{10,20}$/;
-    if (!celularRegex.test(celular)) {
-      return new Response(
-        JSON.stringify({
-          error: "Formato de celular inválido. Ejemplo: +52 55 1234 5678",
-          success: false,
-        }),
-        { status: 400, headers: { "Content-Type": "application/json" } }
-      );
-    }
-
-    // Validar longitud de campos de texto
-    if (caracteristicas.length < 20) {
-      return new Response(
-        JSON.stringify({
-          error: "Las características deben tener al menos 20 caracteres",
-          success: false,
-        }),
-        { status: 400, headers: { "Content-Type": "application/json" } }
-      );
-    }
-
-    if (ubicacion.length < 10) {
-      return new Response(
-        JSON.stringify({
-          error: "La ubicación debe tener al menos 10 caracteres",
-          success: false,
-        }),
-        { status: 400, headers: { "Content-Type": "application/json" } }
-      );
-    }
-
+    
     // Validar tamaño de imágenes (5MB max)
     const maxSize = CONSTANTS.SUPABASE.LIMITS.MAX_IMAGE_SIZE_BYTES; // 5MB
     const images = [imagen_1, imagen_2, imagen_3].filter(
@@ -154,7 +98,7 @@ export async function POST({ request, cookies }) {
         );
       }
     }
-
+    
     // ✅ FUNCIÓN PARA SUBIR IMÁGENES
     async function subirImagen(imagen, nombreBase) {
       if (!imagen || imagen.size === 0) return null;

@@ -1,3 +1,4 @@
+import { validateRoomData } from '../../../utils/validators.js';
 import { CONSTANTS } from "../../../utils/constants.js";
 import { createClient } from "../../../lib/supabase";
 
@@ -183,26 +184,35 @@ export async function POST({ params, request, cookies }) {
     }
 
     // Extraer datos del formulario
-    const updateData = {};
-
+    
     const titulo = formData.get("titulo")?.toString()?.trim();
-    if (titulo) updateData.titulo = titulo;
-
     const precio = formData.get("precio");
-    if (precio) updateData.precio = parseFloat(precio);
-
     const descripcion = formData.get("descripcion")?.toString()?.trim();
-    if (descripcion) updateData.descripcion = descripcion;
-
     const ubicacion = formData.get("ubicacion")?.toString()?.trim();
-    if (ubicacion) updateData.ubicacion = ubicacion;
-
-    // ✅ CORREGIR: Usar los nombres correctos del formulario
     const caracteristicas = formData.get("caracteristicas")?.toString()?.trim();
-    if (caracteristicas) updateData.caracteristicas = caracteristicas;
-
     const celular = formData.get("celular")?.toString()?.trim();
-    if (celular) updateData.celular = celular;
+    const latitud = formData.get("latitud");
+    const longitud = formData.get("longitud");
+    const disponible = formData.get("disponible") === "on";
+
+    const errorValidation = validateRoomData({ titulo, descripcion, precio, celular, caracteristicas, ubicacion });
+    if (errorValidation) {
+      return new Response(JSON.stringify({ error: errorValidation, success: false }), {
+        status: 400, headers: { "Content-Type": "application/json" }
+      });
+    }
+
+    const updateData = {
+        titulo,
+        precio: parseFloat(precio),
+        descripcion,
+        ubicacion,
+        caracteristicas,
+        celular,
+        latitud: latitud ? parseFloat(latitud) : null,
+        longitud: longitud ? parseFloat(longitud) : null,
+        disponible
+    };
 
     // ✅ PROCESAR IMÁGENES
     console.log("📸 Procesando imágenes...");

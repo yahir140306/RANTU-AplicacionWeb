@@ -57,83 +57,9 @@ import RoomForm from "../components/RoomForm.astro";
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script is:inline src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   
-  <script is:inline>
-    // Inicializar mapa cuando cargue la página
-    document.addEventListener("DOMContentLoaded", () => {
-      // Coordenadas por defecto (Centro de México)
-      const defaultLat = 23.634501;
-      const defaultLng = -102.552784;
-      
-      const map = L.map('map-container').setView([defaultLat, defaultLng], 5);
-      
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-      }).addTo(map);
-
-      let marker = null;
-
-      // Intentar obtener la ubicación actual del usuario
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition((position) => {
-          const userLat = position.coords.latitude;
-          const userLng = position.coords.longitude;
-          
-          map.setView([userLat, userLng], 14);
-          
-          marker = L.marker([userLat, userLng], { draggable: true }).addTo(map);
-          document.getElementById('latitud').value = userLat;
-          document.getElementById('longitud').value = userLng;
-
-          marker.on('dragend', function(event) {
-            const position = marker.getLatLng();
-            document.getElementById('latitud').value = position.lat;
-            document.getElementById('longitud').value = position.lng;
-          });
-        });
-      }
-
-      // Permitir hacer clic en el mapa para colocar el marcador
-      map.on('click', function(e) {
-        if (marker) {
-          marker.setLatLng(e.latlng);
-        } else {
-          marker = L.marker(e.latlng, { draggable: true }).addTo(map);
-          marker.on('dragend', function(event) {
-            const position = marker.getLatLng();
-            document.getElementById('latitud').value = position.lat;
-            document.getElementById('longitud').value = position.lng;
-          });
-        }
-        document.getElementById('latitud').value = e.latlng.lat;
-        document.getElementById('longitud').value = e.latlng.lng;
-      });
-
-      // Botón "Usar mi ubicación"
-      document.getElementById("btn-mi-ubicacion").addEventListener("click", () => {
-        if (navigator.geolocation) {
-          navigator.geolocation.getCurrentPosition((position) => {
-            const userLat = position.coords.latitude;
-            const userLng = position.coords.longitude;
-            map.setView([userLat, userLng], 14);
-            if (marker) {
-              marker.setLatLng([userLat, userLng]);
-            } else {
-              marker = L.marker([userLat, userLng], { draggable: true }).addTo(map);
-              marker.on('dragend', function(event) {
-                const pos = marker.getLatLng();
-                document.getElementById('latitud').value = pos.lat;
-                document.getElementById('longitud').value = pos.lng;
-              });
-            }
-            document.getElementById('latitud').value = userLat;
-            document.getElementById('longitud').value = userLng;
-          }, (error) => {
-            alert("No se pudo obtener la ubicación. Por favor revisa los permisos del navegador.");
-          });
-        }
-      });
-    });
-  </script>
+  
 </Layout>
 
-<script src="../logic/room-form.js"></script>
+<script src="../logic/form-map.js"></script>
+
+<script src="../logic/image-uploader.js"></script>

@@ -1,0 +1,37 @@
+---
+import { createClient } from "../../lib/supabase";
+import { decodeHexUrl } from "../../utils/urlDecoder.js";
+import RoomCard from "../../components/RoomCard.astro";
+
+const supabase = createClient({
+  request: Astro.request,
+  cookies: Astro.cookies,
+});
+
+const page = parseInt(Astro.url.searchParams.get("page") || "1");
+const limit = 6;
+const start = (page - 1) * limit;
+const end = start + limit - 1;
+
+const { data: cuartos, error } = await supabase
+  .from("cuartos")
+  .select("*")
+  .eq("activo", true)
+  .order("created_at", { ascending: false })
+  .range(start, end);
+
+const cuartosProcesados =
+  cuartos?.map((cuarto) => ({
+    ...cuarto,
+    imagen_1: decodeHexUrl(cuarto.imagen_1),
+  })) || [];
+
+// Retornamos un header para indicar si hay más páginas
+if (cuartosProcesados.length < limit) {
+  Astro.response.headers.set("X-Has-More", "false");
+} else {
+  Astro.response.headers.set("X-Has-More", "true");
+}
+---
+
+{cuartosProcesados.map((cuarto) => <RoomCard {cuarto} />)}
