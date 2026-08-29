@@ -71,4 +71,4 @@ Se ha integrado **Vitest** y **MockK** para asegurar que el sistema no se rompa 
    ```
 
 ## 📜 Licencia y Autor
-Desarrollado como proyecto de Estadías.
+Desarrollado por el equipo de RANTU.
