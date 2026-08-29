@@ -1,0 +1,32 @@
+---
+// src/components/RegisterForm.astro
+---
+
+<form id="signin-form" class="space-y-6">
+
+          <div>
+            <label
+              for="email"
+              class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+            >
+              Correo electrónico
+            </label>
+            <input
+              type="email"
+              name="email"
+              id="email"
+              placeholder="tucorreo@example.com"
+              class="w-full px-3 py-3 sm:py-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 text-sm sm:text-base placeholder-gray-400"
+              required
+            />
+          </div>
+
+          <button
+            type="submit"
+            id="sign-in"
+            class="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:hover:bg-gray-400 disabled:cursor-not-allowed text-white font-semibold py-3 sm:py-4 px-4 rounded-lg transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 text-sm sm:text-base"
+          >
+            Iniciar sesión
+          </button>
+        
+</form>

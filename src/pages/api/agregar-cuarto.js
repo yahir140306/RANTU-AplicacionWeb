@@ -1,5 +1,7 @@
 import { CONSTANTS } from "../../utils/constants.js";
 import { createClient } from "../../lib/supabase";
+import { validateRoomData } from "../../utils/validators.js";
+// dummy import to allow replacement if needed from "../../lib/supabase";
 
 export async function POST({ request, cookies }) {
   console.log("🔥 Ejecutando agregar-cuarto endpoint");

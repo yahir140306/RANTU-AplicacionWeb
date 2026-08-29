@@ -1,3 +1,4 @@
+import { validateCommentData } from "../../../../utils/validators.js";
 import { createClient } from "../../../../lib/supabase";
 
 export async function GET({ params, request, cookies }) {
