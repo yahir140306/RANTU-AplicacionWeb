@@ -272,8 +272,14 @@
         throw new Error("Sin conexión a internet");
       }
 
-      const response = await fetch("/api/agregar-cuarto", {
-        method: "POST",
+      
+      const formElement = document.querySelector("form");
+      const actionUrl = formElement.getAttribute("action") || "/api/agregar-cuarto";
+      const method = formElement.querySelector('input[name="_method"]')?.value || formElement.getAttribute("method") || "POST";
+      
+      const response = await fetch(actionUrl, {
+
+        method: method,
         body: formData,
         signal: controller.signal,
         headers: {
@@ -297,7 +303,7 @@
 
   // Form validation and submission
   function setupFormSubmission() {
-    const form = document.getElementById("room-form");
+    const form = document.querySelector("form#room-form, form#edit-room-form");
     if (!form) return;
 
     form.addEventListener("submit", async (e) => {
