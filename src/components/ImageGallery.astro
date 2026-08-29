@@ -1,0 +1,112 @@
+---
+// src/components/ImageGallery.astro
+const { imagenes } = Astro.props;
+---
+
+<!-- Modal para zoom de imagen (Galería) -->
+<div id="imageModal" class="fixed inset-0 z-[100] hidden bg-black bg-opacity-95 flex items-center justify-center p-4">
+  <button onclick="closeImageModal()" class="absolute top-4 right-4 text-white hover:text-gray-300 focus:outline-none z-50">
+    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+  </button>
+  
+  <button onclick="prevModalImage(event)" class="absolute left-4 top-1/2 transform -translate-y-1/2 text-white hover:text-gray-300 focus:outline-none bg-black bg-opacity-50 rounded-full p-2 z-50">
+    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+  </button>
+  
+  <img id="modalImage" src="" alt="Imagen ampliada" class="max-w-full max-h-[90vh] object-contain rounded-lg transition-opacity duration-200" />
+  
+  <button onclick="nextModalImage(event)" class="absolute right-4 top-1/2 transform -translate-y-1/2 text-white hover:text-gray-300 focus:outline-none bg-black bg-opacity-50 rounded-full p-2 z-50">
+    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+  </button>
+</div>
+
+<!-- Carrusel -->
+<div
+  id="carousel"
+  class="overflow-x-auto no-scrollbar flex snap-x snap-mandatory scroll-smooth rounded-lg"
+>
+  {
+    imagenes.map((url, i) => (
+      <img
+        src={url}
+        alt={`Imagen ${i + 1}`}
+        class="snap-center w-full h-[500px] object-cover flex-shrink-0 rounded-lg shadow cursor-zoom-in transition-transform hover:opacity-95"
+        style="min-width: 100%"
+        onclick={`openImageModal('${url}')`}
+      />
+    ))
+  }
+</div>
+
+<script is:inline define:vars={{ imagenes }}>
+  // === LOGICA DE LA GALERIA ===
+  let currentImageIndex = 0;
+  
+  window.openImageModal = function(url) {
+    const modal = document.getElementById("imageModal");
+    const modalImg = document.getElementById("modalImage");
+    currentImageIndex = imagenes.indexOf(url);
+    
+    modalImg.src = url;
+    modalImg.style.opacity = '1';
+    modal.classList.remove("hidden");
+    document.body.style.overflow = "hidden"; // Prevent scrolling
+  }
+
+  window.closeImageModal = function() {
+    const modal = document.getElementById("imageModal");
+    modal.classList.add("hidden");
+    document.body.style.overflow = "auto";
+  }
+
+  window.changeImage = function(step) {
+    const modalImg = document.getElementById("modalImage");
+    modalImg.style.opacity = '0.5';
+    
+    setTimeout(() => {
+      currentImageIndex = (currentImageIndex + step + imagenes.length) % imagenes.length;
+      modalImg.src = imagenes[currentImageIndex];
+      modalImg.style.opacity = '1';
+    }, 150);
+  }
+
+  window.prevModalImage = function(e) {
+    e.stopPropagation();
+    changeImage(-1);
+  }
+
+  window.nextModalImage = function(e) {
+    e.stopPropagation();
+    changeImage(1);
+  }
+
+  // Keyboard navigation for modal
+  document.addEventListener('keydown', function(e) {
+    const modal = document.getElementById("imageModal");
+    if (!modal || modal.classList.contains('hidden')) return;
+    
+    if (e.key === 'Escape') closeImageModal();
+    if (e.key === 'ArrowLeft') changeImage(-1);
+    if (e.key === 'ArrowRight') changeImage(1);
+  });
+
+  // Touch swipe for modal
+  let touchStartX = 0;
+  let touchEndX = 0;
+  const modal = document.getElementById("imageModal");
+  if(modal) {
+      modal.addEventListener('touchstart', e => {
+        touchStartX = e.changedTouches[0].screenX;
+      }, {passive: true});
+      modal.addEventListener('touchend', e => {
+        touchEndX = e.changedTouches[0].screenX;
+        handleSwipe();
+      }, {passive: true});
+  }
+
+  function handleSwipe() {
+    const swipeThreshold = 50;
+    if (touchEndX < touchStartX - swipeThreshold) changeImage(1); // Swipe left
+    if (touchEndX > touchStartX + swipeThreshold) changeImage(-1); // Swipe right
+  }
+</script>
